@@ -3131,9 +3131,37 @@
                         return price > 0 ? price : null;
                     };
 
+                    // Helper function to parse original price from product
+                    const parseOriginalPrice = (product, currentPrice) => {
+                        if (!product || !currentPrice) return null;
+                        // Try multiple possible original price field names
+                        let originalPriceValue = product.product_original_price || product.original_price || 
+                                                product.list_price || product.price_info?.list_price ||
+                                                product.pricing?.list_price || product.msrp || 
+                                                product.retail_price || 0;
+                        
+                        // Clean price string if it contains currency symbols, commas, or other formatting
+                        if (typeof originalPriceValue === 'string') {
+                            originalPriceValue = originalPriceValue.replace(/[$,£€¥₹]/g, '').trim();
+                            // Handle ranges like "$10 - $20" - take the lower value
+                            if (originalPriceValue.includes('-')) {
+                                originalPriceValue = originalPriceValue.split('-')[0].trim();
+                            }
+                        }
+                        
+                        const originalPrice = parseFloat(originalPriceValue) || 0;
+                        
+                        // Only return original price if it's greater than current price
+                        if (originalPrice > currentPrice) {
+                            return originalPrice;
+                        }
+                        return null;
+                    };
+
                     // Platform-specific data extraction
                     const extractProductData = (product, platform, fallbackPrice) => {
                         const price = parsePrice(product) || fallbackPrice;
+                        const originalPrice = parseOriginalPrice(product, price);
                         let title, image, url, seller;
 
                         if (platform === 'Amazon') {
@@ -3153,7 +3181,7 @@
                             seller = product?.seller_name || product?.seller || product?.brand || product?.store_name || 'Alibaba Direct Supplier';
                         }
                         
-                        return { price, title, image, url, seller };
+                        return { price, originalPrice, title, image, url, seller };
                     };
 
                     // Calculate fallback prices with platform-specific calibration
@@ -3171,14 +3199,17 @@
 
                     // Calculate savings for display
                     const calculateSavings = (original, discounted) => {
+                        if (!original || original <= discounted) {
+                            return { savings: 0, discount: 0, hasDiscount: false };
+                        }
                         const savings = original - discounted;
                         const discount = Math.round((savings / original) * 100);
-                        return { savings, discount };
+                        return { savings, discount, hasDiscount: true };
                     };
 
-                    const amazonSavings = calculateSavings(basePrice, amazonData.price);
-                    const ebaySavings = calculateSavings(basePrice, ebayData.price);
-                    const alibabaSavings = calculateSavings(basePrice, alibabaData.price);
+                    const amazonSavings = calculateSavings(amazonData.originalPrice, amazonData.price);
+                    const ebaySavings = calculateSavings(ebayData.originalPrice, ebayData.price);
+                    const alibabaSavings = calculateSavings(alibabaData.originalPrice, alibabaData.price);
 
                     resultsContainer.innerHTML = `
                       <div class="space-y-4">
@@ -3197,7 +3228,7 @@
                             <img src="https://www.google.com/s2/favicons?domain=amazon.com&sz=128" alt="Amazon" class="w-10 h-10 rounded-lg" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23f97316%22><text y=%2220%22 font-size=%2220%22>📦</text></svg>'">
                             <div>
                               <h4 class="font-bold text-lg">Amazon Deal</h4>
-                              <span class="inline-block px-2 py-0.5 bg-slate-700 text-white text-xs font-bold rounded-full mt-1">${formatSavings(amazonSavings.savings, amazonSavings.discount)}</span>
+                              ${amazonSavings.hasDiscount ? `<span class="inline-block px-2 py-0.5 bg-slate-700 text-white text-xs font-bold rounded-full mt-1">${formatSavings(amazonSavings.savings, amazonSavings.discount)}</span>` : ''}
                             </div>
                           </div>
                           <div class="flex gap-4 mb-4">
@@ -3208,7 +3239,7 @@
                             </div>
                           </div>
                           <div class="flex items-baseline gap-3 mb-4">
-                            <span class="text-lg line-through opacity-50">${formatPrice(basePrice)}</span>
+                            ${amazonSavings.hasDiscount ? `<span class="text-lg line-through opacity-50">${formatPrice(amazonData.originalPrice)}</span>` : ''}
                             <span class="text-2xl font-black text-emerald-600 dark:text-emerald-400">${formatPrice(amazonData.price)}</span>
                           </div>
                           <a href="${amazonData.url}" target="_blank" rel="noopener sponsored" class="px-6 py-3 bg-slate-900 hover:bg-black text-white font-bold rounded-xl transition-all shadow-md hover:-translate-y-0.5 flex items-center gap-2 w-fit">
@@ -3233,7 +3264,7 @@
                             </div>
                           </div>
                           <div class="flex items-baseline gap-3 mb-4">
-                            <span class="text-lg line-through opacity-50">${formatPrice(basePrice)}</span>
+                            ${ebaySavings.hasDiscount ? `<span class="text-lg line-through opacity-50">${formatPrice(ebayData.originalPrice)}</span>` : ''}
                             <span class="text-2xl font-black text-indigo-600 dark:text-indigo-400">${ebayProduct ? 'See Price on eBay' : 'Click for Live Price'}</span>
                           </div>
                           <a href="${ebayData.url}" target="_blank" rel="noopener noreferrer" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-md hover:-translate-y-0.5 flex items-center gap-2 w-fit">
@@ -3258,7 +3289,7 @@
                             </div>
                           </div>
                           <div class="flex items-baseline gap-3 mb-4">
-                            <span class="text-lg line-through opacity-50">${formatPrice(basePrice)}</span>
+                            ${alibabaSavings.hasDiscount ? `<span class="text-lg line-through opacity-50">${formatPrice(alibabaData.originalPrice)}</span>` : ''}
                             <span class="text-2xl font-black text-green-600 dark:text-green-400">${alibabaProduct ? 'See Wholesale Price' : 'Check Price on Alibaba'}</span>
                           </div>
                           <a href="${alibabaData.url}" target="_blank" rel="noopener noreferrer" class="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl transition-all shadow-md hover:-translate-y-0.5 flex items-center gap-2 w-fit">
