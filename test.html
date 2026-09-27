@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Buttons</title>
+</head>
+<body>
+  <h1>Button Test</h1>
+  <button id="test-btn" class="test-btn">Click Me</button>
+  <div id="output"></div>
+
+  <script>
+    function testFunction() {
+      console.log('testFunction called');
+      document.getElementById('output').textContent = 'Button clicked!';
+      alert('Button clicked!');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('DOMContentLoaded fired');
+      const btn = document.getElementById('test-btn');
+      if (btn) {
+        console.log('Button found, attaching listener');
+        btn.addEventListener('click', testFunction);
+      } else {
+        console.error('Button not found');
+      }
+    });
+  </script>
+</body>
+</html>

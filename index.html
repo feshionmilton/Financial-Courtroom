@@ -1,0 +1,3376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#090d16">
+  <title>Financial Courtroom</title>
+
+  <!-- Supabase JS Client (loaded first for early availability) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- html2canvas for screenshot functionality -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <!-- Tailwind Config -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            glass: {
+              100: 'rgba(255, 255, 255, 0.1)',
+              200: 'rgba(255, 255, 255, 0.2)',
+              300: 'rgba(255, 255, 255, 0.3)',
+            },
+          },
+        },
+      },
+    }
+  </script>
+  
+  <!-- Glassmorphism Styles -->
+  <style>
+    html {
+      overflow-x: hidden;
+      width: 100%;
+      max-width: 100vw;
+    }
+
+    /* Dark Mode (Default) */
+    html.dark {
+      background-color: #090d16 !important;
+    }
+
+    html.dark body {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      background-color: #090d16 !important;
+    }
+
+    /* Light Mode */
+    html:not(.dark) {
+      background-color: #f8fafc !important;
+    }
+
+    html:not(.dark) body {
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
+      background-color: #f8fafc !important;
+    }
+
+    body {
+      min-height: 100vh;
+      overflow-x: hidden;
+      width: 100%;
+      max-width: 100vw;
+      box-sizing: border-box;
+      transition: background 0.3s ease;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    .glass-card,
+    .glass,
+    .glass-dark,
+    .glass-button,
+    input,
+    select,
+    textarea,
+    button,
+    .step-content,
+    .step-indicator {
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* Dark Mode Glass Styles */
+    html.dark .glass {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    html.dark .glass-dark {
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    html.dark .glass-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    html.dark .glass-button {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    html.dark .glass-button:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
+    }
+
+    /* Light Mode Glass Styles */
+    html:not(.dark) .glass {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    html:not(.dark) .glass-dark {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    html:not(.dark) .glass-card {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    html:not(.dark) .glass-button {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    html:not(.dark) .glass-button:hover {
+      background: rgba(255, 255, 255, 1);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .text-gradient {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Emoji Icon Styling - Native Colors */
+    .emoji-icon {
+      font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif;
+      font-style: normal;
+      font-size: 1.5rem;
+      margin-right: 8px;
+      display: inline-block;
+      vertical-align: middle;
+      /* Prevent dark mode text color overrides from tinting emoji */
+      color: initial !important;
+      -webkit-text-fill-color: initial !important;
+    }
+
+    .glow {
+      box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .stamp-approved {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border: 3px solid #34d399;
+      transform: rotate(-5deg);
+    }
+
+    .stamp-probation {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      border: 3px solid #fbbf24;
+      transform: rotate(-5deg);
+    }
+
+    .stamp-guilty {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      border: 3px solid #f87171;
+      transform: rotate(-5deg);
+    }
+
+    .step-indicator {
+      transition: all 0.3s ease;
+    }
+
+    .step-indicator.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .step-indicator.completed {
+      background: #10b981;
+    }
+
+    option {
+      background-color: #0f172a;
+      color: #f8fafc;
+    }
+  </style>
+</head>
+<body class="font-sans dark:text-white text-gray-900">
+  <script>
+    console.log('=== JAVASCRIPT IS EXECUTING ===');
+  </script>
+  <!-- Sticky Header Navigation -->
+  <header class="sticky top-0 z-50 glass-dark">
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-wrap items-center justify-between gap-2 py-3">
+        <!-- Logo -->
+        <div class="flex items-center space-x-2 sm:space-x-3">
+          <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center glow flex-shrink-0">
+            <svg class="w-4 h-4 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24" style="max-width: 24px; max-height: 24px;">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"></path>
+            </svg>
+          </div>
+          <span class="text-base sm:text-xl font-bold text-gradient">Financial Courtroom</span>
+        </div>
+
+        <!-- Navigation Links -->
+        <div class="hidden md:flex items-center space-x-4 sm:space-x-8 flex-wrap">
+          <a href="#dashboard" class="dark:text-gray-300 text-gray-700 dark:hover:text-white hover:text-gray-900 transition-colors text-sm">Dashboard</a>
+          <a href="#calculator" class="dark:text-gray-300 text-gray-700 dark:hover:text-white hover:text-gray-900 transition-colors text-sm">Calculator</a>
+          <a href="#tracker" class="dark:text-gray-300 text-gray-700 dark:hover:text-white hover:text-gray-900 transition-colors text-sm">Tracker</a>
+          <a href="#reports" class="dark:text-gray-300 text-gray-700 dark:hover:text-white hover:text-gray-900 transition-colors text-sm">Reports</a>
+          <button id="audit-leaks-btn" class="dark:text-gray-300 text-gray-700 dark:hover:text-white hover:text-gray-900 transition-colors flex items-center gap-2 text-sm">
+            🔍 Audit Monthly Leaks
+          </button>
+        </div>
+
+        <!-- Persistent Savings Tracker -->
+        <div class="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
+          <div id="savings-badge" class="glass-card rounded-lg px-3 py-2 sm:px-4 sm:py-2 flex items-center space-x-2 sm:space-x-3 cursor-pointer dark:hover:bg-white/10 hover:bg-gray-200 transition-all">
+            <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center flex-shrink-0">
+              <svg class="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24" style="max-width: 24px; max-height: 24px;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+            <div class="min-w-0">
+              <p class="text-xs text-gray-400 dark:text-gray-400 text-gray-600">Total Savings</p>
+              <p id="savings-tracker" class="text-sm sm:text-lg font-mono font-semibold text-green-400 truncate">$0.00</p>
+            </div>
+          </div>
+
+          <!-- Auth Button -->
+          <button id="open-auth-btn" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold flex items-center gap-2 transition">
+            <span>Sign In</span>
+          </button>
+
+          <!-- Theme Toggle Button -->
+          <button id="theme-toggle-btn" class="p-2 rounded-xl border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+            <span id="theme-icon">🌙</span>
+          </button>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Step Indicators -->
+    <div class="flex justify-center items-center space-x-4 mb-8">
+      <div id="step-1-indicator" class="step-indicator active w-10 h-10 rounded-full flex items-center justify-center dark:text-white text-gray-900 font-bold">1</div>
+      <div class="w-16 h-1 bg-gray-600 rounded"></div>
+      <div id="step-2-indicator" class="step-indicator w-10 h-10 rounded-full dark:bg-gray-600 bg-gray-300 flex items-center justify-center dark:text-white text-gray-900 font-bold">2</div>
+      <div class="w-16 h-1 bg-gray-600 rounded"></div>
+      <div id="step-3-indicator" class="step-indicator w-10 h-10 rounded-full dark:bg-gray-600 bg-gray-300 flex items-center justify-center dark:text-white text-gray-900 font-bold">3</div>
+    </div>
+
+    <!-- Wizard Container -->
+    <div class="glass-card rounded-2xl p-8">
+      <!-- Step 1: Product & Wage Information -->
+      <div id="step-1" class="step-content">
+        <h2 class="text-3xl font-bold mb-6 text-gradient">Step 1: The Evidence</h2>
+        
+        <div class="space-y-6">
+          <div>
+            <label class="block text-sm font-medium dark:text-gray-300 text-gray-700 mb-2">Product Name</label>
+            <input type="text" id="product-name" class="w-full px-4 py-3 rounded-xl border transition-all bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-slate-900/80 dark:border-slate-700 dark:text-white dark:placeholder-slate-500" placeholder="e.g., New Gaming Laptop">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium dark:text-gray-300 text-gray-700 mb-2">Product Price ($)</label>
+            <input type="number" id="product-price" class="w-full px-4 py-3 rounded-xl border transition-all bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-slate-900/80 dark:border-slate-700 dark:text-white dark:placeholder-slate-500" placeholder="0.00" step="0.01">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium dark:text-gray-300 text-gray-700 mb-2">Your Hourly Wage ($)</label>
+            <input type="number" id="hourly-wage" class="w-full px-4 py-3 rounded-xl border transition-all bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-slate-900/80 dark:border-slate-700 dark:text-white dark:placeholder-slate-500" placeholder="0.00" step="0.01">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium dark:text-gray-300 text-gray-700 mb-3">Quick Wage Presets</label>
+            <div class="flex flex-wrap gap-3">
+              <button class="set-wage-btn px-4 py-2 rounded-xl text-sm font-semibold border transition-all cursor-pointer bg-slate-100 border-slate-300 text-slate-800 hover:bg-slate-200 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-700" data-wage="15">$15/hr</button>
+              <button class="set-wage-btn px-4 py-2 rounded-xl text-sm font-semibold border transition-all cursor-pointer bg-slate-100 border-slate-300 text-slate-800 hover:bg-slate-200 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-700" data-wage="25">$25/hr</button>
+              <button class="set-wage-btn px-4 py-2 rounded-xl text-sm font-semibold border transition-all cursor-pointer bg-slate-100 border-slate-300 text-slate-800 hover:bg-slate-200 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-700" data-wage="50">$50/hr</button>
+              <button class="set-wage-btn px-4 py-2 rounded-xl text-sm font-semibold border transition-all cursor-pointer bg-slate-100 border-slate-300 text-slate-800 hover:bg-slate-200 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-700" data-wage="100">$100/hr</button>
+            </div>
+          </div>
+
+          <button id="go-to-step-2-btn" type="button" class="w-full py-4 px-6 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-500 shadow-md transition-all cursor-pointer flex items-center justify-center gap-2 text-base">
+            Proceed to Defense Step →
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 2: Intent & Usage Analysis -->
+      <div id="step-2" class="step-content hidden">
+        <h2 class="text-3xl font-bold mb-6 text-gradient">Step 2: The Defense</h2>
+        
+        <div class="space-y-6">
+          <div>
+            <label class="block text-sm font-medium dark:text-gray-300 text-gray-700 mb-2">Purchase Intent</label>
+            <select id="purchase-intent" class="w-full px-4 py-3 rounded-xl border transition-all bg-white border-slate-300 text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-slate-900/80 dark:border-slate-700 dark:text-white">
+              <option value="">Select intent...</option>
+              <option value="essential">Essential Need</option>
+              <option value="productivity">Productivity Tool</option>
+              <option value="entertainment">Entertainment</option>
+              <option value="luxury">Luxury Item</option>
+              <option value="investment">Investment</option>
+              <option value="impulse">Impulse Buy</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium dark:text-gray-300 text-gray-700 mb-2">Expected Usage Frequency</label>
+            <select id="usage-frequency" class="w-full px-4 py-3 rounded-xl border transition-all bg-white border-slate-300 text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-slate-900/80 dark:border-slate-700 dark:text-white">
+              <option value="">Select frequency...</option>
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+              <option value="rarely">Rarely</option>
+              <option value="once">One-time Use</option>
+            </select>
+          </div>
+
+          <div class="flex items-center justify-between p-4 rounded-lg bg-white/5 border border-white/10">
+            <div>
+              <p class="font-medium">Replaces Existing Item?</p>
+              <p class="text-sm text-gray-400">Does this replace something you already own?</p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="replacement-toggle" class="sr-only peer">
+              <div class="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-purple-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+            </label>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium dark:text-gray-300 text-gray-700 mb-2">Custom Defense Statement</label>
+            <textarea id="custom-defense" rows="4" class="w-full px-4 py-3 rounded-xl border transition-all bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-slate-900/80 dark:border-slate-700 dark:text-white dark:placeholder-slate-500 resize-none" placeholder="Explain why this purchase is justified..."></textarea>
+          </div>
+
+          <div class="flex gap-4">
+            <button id="go-to-step-1-btn" class="px-6 py-3.5 rounded-xl font-bold border transition-all cursor-pointer bg-slate-200 border-slate-300 text-slate-800 hover:bg-slate-300 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-700">
+              ← Back
+            </button>
+            <button id="goto-step3-btn" type="button" class="flex-1 py-4 px-6 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-500 shadow-md transition-all cursor-pointer">
+              Deliver Verdict →
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Verdict -->
+      <div id="step-3" class="step-content hidden">
+        <h2 class="text-3xl font-bold mb-6 text-gradient">Step 3: The Verdict</h2>
+        
+        <div id="verdict-content" class="space-y-6">
+          <!-- Verdict Stamp -->
+          <div id="verdict-stamp" class="hidden text-center py-8">
+            <div class="inline-block px-8 py-4 rounded-lg text-3xl font-bold text-white uppercase tracking-wider">
+              <!-- Stamp text will be inserted here -->
+            </div>
+          </div>
+
+          <!-- Calculations -->
+          <div id="calculations" class="space-y-4 hidden">
+            <div class="p-4 rounded-lg bg-white/5 border border-white/10">
+              <p class="text-sm text-gray-400 mb-1">Labor Hours Required</p>
+              <p id="labor-hours" class="text-2xl font-mono font-semibold text-purple-400">0 hours</p>
+            </div>
+
+            <div class="p-4 rounded-lg bg-white/5 border border-white/10">
+              <p class="text-sm text-gray-400 mb-1">Compound Growth Calculator (7% S&P 500 return)</p>
+              <div class="flex flex-wrap gap-2 mb-3">
+                <button class="growth-year-btn px-3 py-1 rounded-lg text-sm font-medium bg-white/10 hover:bg-white/20 transition-all" data-years="1">1 Year</button>
+                <button class="growth-year-btn px-3 py-1 rounded-lg text-sm font-medium bg-green-500/30 border border-green-500/50 transition-all" data-years="3">3 Years</button>
+                <button class="growth-year-btn px-3 py-1 rounded-lg text-sm font-medium bg-white/10 hover:bg-white/20 transition-all" data-years="5">5 Years</button>
+                <button class="growth-year-btn px-3 py-1 rounded-lg text-sm font-medium bg-white/10 hover:bg-white/20 transition-all" data-years="10">10 Years</button>
+                <input type="number" id="custom-years" class="w-20 px-2 py-1 rounded-lg text-sm dark:bg-white/10 dark:border-white/20 bg-white border-gray-300 dark:text-white text-gray-900 dark:placeholder-gray-400 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Custom" min="1" max="50">
+              </div>
+              <p class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1 block">Investment Opportunity</p>
+              <p id="investment-value" class="text-3xl font-black text-indigo-600 dark:text-indigo-400">$0.00</p>
+              <p id="growth-profit" class="text-sm text-slate-600 dark:text-slate-400 mt-1">+$0.00 profit</p>
+            </div>
+
+            <div class="p-4 rounded-lg bg-white/5 border border-white/10">
+              <p class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1 block">Cost Per Use</p>
+              <p id="cost-per-use" class="text-3xl font-black text-indigo-600 dark:text-indigo-400">$0.00</p>
+            </div>
+          </div>
+
+          <!-- AI Speech Output -->
+          <div id="speech-section" class="hidden">
+            <div class="p-5 rounded-2xl border bg-slate-100 border-slate-300 text-slate-900 dark:bg-slate-900/80 dark:border-slate-800 dark:text-slate-100 mb-4 shadow-sm transition-all">
+              <p class="text-xs font-bold tracking-wider text-indigo-700 dark:text-indigo-400 uppercase mb-2 block">AI Judge Ruling</p>
+              <p id="ai-speech" class="text-sm sm:text-base font-medium italic text-slate-900 dark:text-slate-100 leading-relaxed"></p>
+            </div>
+
+            <!-- Unified Audio Toggle Button -->
+            <button id="tts-toggle-btn" type="button" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md">
+              <span id="tts-icon">🔊</span>
+              <span id="tts-label">Listen to Ruling</span>
+            </button>
+          </div>
+
+          <!-- Action Buttons -->
+          <div id="action-buttons" class="space-y-3">
+            <button id="save-savings-btn" type="button" class="w-full py-3.5 px-6 rounded-xl font-bold text-white bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-500 shadow-md transition-all cursor-pointer flex items-center justify-center gap-2">
+              💰 Save $<span id="savings-amount-display">0.00</span> to Total Savings
+            </button>
+            <button id="reset-case-btn" type="button" class="w-full mt-3 bg-slate-200 hover:bg-slate-300 text-slate-900 border border-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-100 dark:border-slate-700 font-bold py-3.5 px-6 rounded-xl transition cursor-pointer flex items-center justify-center gap-2">
+              🔄 Start New Session
+            </button>
+
+            <!-- Financial Affiliate Offer Card -->
+            <div id="verdict-affiliate-card" class="mt-4 p-5 rounded-2xl border bg-indigo-50 border-indigo-200 text-slate-900 dark:bg-indigo-950/50 dark:border-indigo-500/30 dark:text-slate-100 text-left transition-all">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-extrabold tracking-wider text-indigo-800 dark:text-indigo-300 uppercase">Sponsored • Automated Savings Vault</span>
+                <span class="text-xs bg-indigo-200 text-indigo-900 dark:bg-indigo-500/20 dark:text-indigo-300 px-2.5 py-0.5 rounded-full font-bold">5.0% APY</span>
+              </div>
+              <h4 class="text-sm font-bold text-slate-900 dark:text-white mb-1">Put avoided impulse money to work</h4>
+              <p class="text-xs text-slate-700 dark:text-slate-300 mb-3">Deposit saved funds into a high-yield account or micro-investing portfolio.</p>
+              <a href="https://www.wealthfront.com" target="_blank" rel="noopener noreferrer" class="block w-full text-center text-xs bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold py-2.5 px-4 rounded-lg transition">
+                Claim High-Yield Account Offer →
+              </a>
+            </div>
+          </div>
+
+          <!-- Cashback Card (for APPROVED verdicts) -->
+          <div id="cashback-card" class="hidden mt-6 p-4 rounded-lg bg-green-500/10 border border-green-500/20">
+            <h4 class="text-lg font-bold text-green-400 mb-2">🎉 VERDICT APPROVED: DON'T PAY FULL PRICE!</h4>
+            <p class="dark:text-gray-300 text-gray-700 text-sm leading-relaxed">
+              Before paying <span id="cashback-price" class="text-green-400 font-mono font-bold">$0.00</span>, activate Rakuten to claim a <span class="text-yellow-400 font-bold">$30 Welcome Cash Bonus</span> + estimated <span class="text-yellow-400 font-bold">$<span id="est-cashback">0</span> Cash Back</span> (up to 15%). That's <span class="text-yellow-400 font-bold">$<span id="total-benefit">0</span> back in your pocket</span> on this purchase!
+            </p>
+            <a href="#" id="rakuten-link" target="_blank" class="block mt-3 w-full glass-button py-3 rounded-lg font-semibold text-center bg-gradient-to-r from-orange-600 to-yellow-600 hover:from-orange-700 hover:to-yellow-700 transition-all text-sm">
+              Claim $30 Bonus + $<span id="cta-cashback">0</span> Cash Back on Rakuten →
+            </a>
+          </div>
+
+          <!-- 0% APR Card (for GUILTY verdicts) -->
+          <div id="zero-apr-card" class="hidden mt-6 p-4 rounded-lg bg-red-500/10 border border-red-500/20">
+            <div class="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase bg-red-500 text-white mb-2">🔥 STOP PAYING 24% INTEREST</div>
+            <h4 class="text-lg font-bold text-red-400 mb-2">Freeze Interest Charges for 21 Months</h4>
+            <p class="dark:text-gray-300 text-gray-700 text-sm leading-relaxed">
+              Carrying credit card debt? Transfer your balance to a 0% APR card and stop paying high interest today. The average user saves <span class="text-yellow-400 font-bold">$1,420+</span> in interest charges while wiping out their principal debt.
+            </p>
+            <a href="#" id="zero-apr-link" target="_blank" rel="noopener noreferrer" class="block mt-3 w-full glass-button py-3 rounded-lg font-semibold text-center bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 transition-all text-sm">
+              Find My 0% APR Balance Transfer Card →
+            </a>
+          </div>
+
+          <!-- High-Yield Savings Card (for PROBATION verdicts) -->
+          <div id="hysa-card" class="hidden mt-6 p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
+            <div class="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase bg-blue-500 text-white mb-2">⏳ 48-HOUR PROBATION OFFER</div>
+            <h4 class="text-lg font-bold text-blue-400 mb-2">Earn 4.5%+ APY While You Decide</h4>
+            <p class="dark:text-gray-300 text-gray-700 text-sm leading-relaxed">
+              Not sure if you should buy this item yet? Put your <span class="text-green-400 font-bold">$<span id="hysa-price">0.00</span></span> into a High-Yield Savings Account (HYSA) for 48 hours. If you still want it after 48 hours, buy it. If not, keep the interest!
+            </p>
+            <a href="#" id="hysa-link" target="_blank" class="block mt-3 w-full glass-button py-3 rounded-lg font-semibold text-center bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all text-sm">
+              Put $<span id="hysa-cta-price">0.00</span> into High-Yield Savings (Get $200 Bonus) →
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Past Rulings History -->
+      <div id="case-history-section" class="mt-12 hidden">
+        <h2 class="text-3xl font-bold mb-6 text-gradient">Past Rulings History</h2>
+        <div id="case-history-list" class="space-y-4">
+          <!-- History cards will be inserted here -->
+        </div>
+        <p id="no-history-msg" class="dark:text-gray-400 text-gray-600 text-center py-8 hidden">No past rulings found. Start a new case to build your history!</p>
+      </div>
+    </div>
+
+    <!-- Bargain Engine -->
+    <div class="glass-card rounded-2xl p-8 mt-8">
+      <h2 class="text-3xl font-bold mb-6 text-gradient"><span class="emoji-icon">💰</span> Bargain Engine</h2>
+      <p class="text-gray-400 mb-6">Find cheaper alternatives for your desired product</p>
+      
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium dark:text-gray-300 text-gray-700 mb-2">Product Name for Search</label>
+          <input type="text" id="bargain-search-input" class="w-full px-4 py-3 rounded-lg dark:bg-white/10 dark:border-white/20 bg-white border-gray-300 dark:text-white text-gray-900 dark:placeholder-gray-400 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="e.g., iPhone 15 Pro">
+        </div>
+        
+        <button id="find-bargains-btn" type="button" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md">
+          🔍 Find Bargains
+        </button>
+
+        <div id="bargain-results-container" class="space-y-4 mt-6">
+          <p class="text-gray-500 text-center py-8">Enter a product name above to find bargain deals</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1-Click Viral Social Canvas Card Generator -->
+    <div class="glass-card rounded-2xl p-8 mt-8">
+      <h2 class="text-3xl font-bold mb-6 text-gradient"><span class="emoji-icon">📱</span> Viral Social Card Generator</h2>
+      <p class="text-gray-400 mb-6">Generate shareable cards for your purchase decisions</p>
+      
+      <button id="generate-social-card-btn" type="button" class="w-full py-3.5 px-6 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer">
+        <span>✨ Generate Viral Share Card</span>
+      </button>
+
+      <div id="social-card" class="hidden mt-6">
+        <div id="card-canvas" class="bg-gradient-to-br from-purple-600 to-indigo-700 rounded-xl p-6 text-white relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+          <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12"></div>
+          
+          <p class="text-xs uppercase tracking-wider opacity-70 mb-2">Financial Courtroom</p>
+          <h3 id="card-product" class="text-2xl font-bold mb-2"></h3>
+          <div class="flex items-center gap-4 mb-4">
+            <span id="card-price" class="text-3xl font-mono font-bold"></span>
+            <span id="card-verdict" class="px-3 py-1 rounded-full text-sm font-bold uppercase"></span>
+          </div>
+          <div class="flex justify-between text-sm opacity-80">
+            <span>⏱️ <span id="card-labor"></span> hours of work</span>
+            <span>📈 $<span id="card-investment"></span> in 10 years</span>
+          </div>
+        </div>
+        
+        <div class="flex gap-4 mt-4">
+          <button id="download-card-btn" class="flex-1 glass-button py-2 rounded-lg font-medium">
+            📥 Download Image
+          </button>
+          <button id="copy-card-text-btn" class="flex-1 glass-button py-2 rounded-lg font-medium">
+            📋 Copy Text
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 48-Hour Wishlist Vault -->
+    <div class="glass-card rounded-2xl p-8 mt-8">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-3xl font-bold text-gradient"><span class="emoji-icon">🔒</span> 48-Hour Wishlist Vault</h2>
+        <button id="clear-expired-wishlist-btn" class="glass-button px-4 py-2 rounded-lg text-sm font-medium">
+          Clear Expired
+        </button>
+      </div>
+      <p class="text-gray-400 mb-6">Items must stay here for 48 hours before purchase approval</p>
+      
+      <div class="flex flex-col sm:flex-row gap-2 w-full mb-6">
+        <input type="text" id="wishlist-item" class="w-full px-4 py-3 rounded-lg dark:bg-white/10 dark:border-white/20 bg-white border-gray-300 dark:text-white text-gray-900 dark:placeholder-gray-400 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Add item to wishlist...">
+        <input type="number" id="wishlist-price" class="w-full sm:w-28 px-4 py-3 rounded-lg dark:bg-white/10 dark:border-white/20 bg-white border-gray-300 dark:text-white text-gray-900 dark:placeholder-gray-400 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="$0.00" step="0.01">
+        <button id="add-to-wishlist-btn" class="w-full sm:w-auto glass-button px-6 py-3 rounded-lg font-semibold">
+          Add
+        </button>
+      </div>
+
+      <div id="wishlist-items" class="space-y-3">
+        <p class="text-gray-500 text-center py-8">No items in wishlist</p>
+      </div>
+    </div>
+
+    <!-- Community Wall of Shame -->
+    <div class="glass-card rounded-2xl p-8 mt-8">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-3xl font-bold text-gradient"><span class="emoji-icon">😱</span> Community Wall of Shame</h2>
+        <button id="clear-wall-of-shame-btn" class="glass-button px-4 py-2 rounded-lg text-sm font-medium">
+          Clear All
+        </button>
+      </div>
+      <p class="text-gray-400 mb-6">Document your impulse buys to learn from mistakes</p>
+      
+      <div class="flex flex-col sm:flex-row gap-2 w-full mb-6">
+        <input type="text" id="shame-item" class="w-full px-4 py-3 rounded-lg dark:bg-white/10 dark:border-white/20 bg-white border-gray-300 dark:text-white text-gray-900 dark:placeholder-gray-400 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="What did you buy?">
+        <input type="number" id="shame-price" class="w-full sm:w-28 px-4 py-3 rounded-lg dark:bg-white/10 dark:border-white/20 bg-white border-gray-300 dark:text-white text-gray-900 dark:placeholder-gray-400 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="$0.00" step="0.01">
+        <button id="add-to-wall-of-shame-btn" class="w-full sm:w-auto glass-button px-6 py-3 rounded-lg font-semibold bg-red-500/20 border-red-500/40 hover:bg-red-500/30">
+          Confess
+        </button>
+      </div>
+
+      <div id="wall-of-shame-items" class="space-y-3">
+        <p class="text-gray-500 text-center py-8">No confessions yet - stay strong!</p>
+      </div>
+      
+      <div class="mt-6 p-4 rounded-lg bg-red-500/10 border border-red-500/20">
+        <p class="text-sm text-gray-400">Total Regret: <span id="total-regret" class="text-xl font-mono font-bold text-red-400">$0.00</span></p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-12">
+    <p class="text-center text-xs text-gray-500 leading-relaxed">
+      Financial Courtroom is a financial tools app. Some links on this site are affiliate links, meaning we may earn a small commission if you sign up or purchase through them at no extra cost to you.
+      <span class="block mt-2">As an Amazon Associate, I earn from qualifying purchases.</span>
+    </p>
+  </footer>
+
+  <!-- Savings Menu Modal -->
+  <div id="savings-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div class="glass-card rounded-2xl p-6 max-w-md w-full mx-4">
+      <h3 class="text-2xl font-bold mb-4 text-gradient">Savings Management</h3>
+      <p class="text-gray-400 mb-6">Current Savings: <span id="modal-savings" class="text-green-400 font-mono font-bold">$0.00</span></p>
+      
+      <!-- High-Yield Savings Banner -->
+      <div id="high-yield-banner" class="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20 mb-6">
+        <p class="dark:text-gray-300 text-gray-700 text-sm leading-relaxed">
+          You have saved <span id="high-yield-total" class="text-green-400 font-mono font-bold">$0.00</span> total! If moved to a 4.5% High-Yield Savings Account, you will earn <strong class="font-bold text-indigo-600 dark:text-indigo-400">$<span id="annual-interest">0.00</span>/year</strong> in free passive interest.
+        </p>
+        <a href="https://www.wealthfront.com" target="_blank" rel="noopener noreferrer" class="w-full mt-3 block text-center font-bold py-3 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white transition">
+          Open 4.5% High-Yield Account →
+        </a>
+      </div>
+      
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium dark:text-gray-300 text-gray-700 mb-2">Deduct Amount</label>
+          <input type="number" id="deduct-amount" class="w-full px-4 py-3 rounded-lg dark:bg-white/10 dark:border-white/20 bg-white border-gray-300 dark:text-white text-gray-900 dark:placeholder-gray-400 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Enter amount to subtract (e.g. 200)" step="0.01" min="0">
+        </div>
+        
+        <button id="confirm-deduction-btn" class="w-full glass-button py-3 rounded-lg font-semibold flex items-center justify-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24" style="max-width: 24px; max-height: 24px;">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+          </svg>
+          Confirm Deduction
+        </button>
+        
+        <button id="reset-savings-btn" class="w-full glass-button py-3 rounded-lg font-semibold text-red-400 flex items-center justify-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24" style="max-width: 24px; max-height: 24px;">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+          </svg>
+          Reset to $0.00
+        </button>
+        
+        <button id="close-savings-menu-btn" class="w-full glass-button py-3 rounded-lg font-semibold text-gray-400">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Invest Success Modal -->
+  <div id="invest-success-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div class="glass-card rounded-2xl p-8 max-w-lg w-full mx-4">
+      <div class="text-center mb-6">
+        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center">
+          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="32" height="32" style="max-width: 32px; max-height: 32px;">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+        <h3 class="text-2xl font-bold mb-2 text-gradient">🎉 You Banked It!</h3>
+        <p id="invest-amount-text" class="text-xl text-green-400 font-mono font-bold">$0.00</p>
+      </div>
+      
+      <p class="dark:text-gray-300 text-gray-700 text-center mb-6">
+        Don't let it sit in checking where it gets spent.
+      </p>
+      
+      <div class="p-4 rounded-lg bg-green-500/10 border border-green-500/20 mb-6">
+        <p class="dark:text-gray-300 text-gray-700 text-center">
+          Put that <span id="invest-amount-card" class="text-green-400 font-mono font-bold">$0.00</span> into index funds on Acorns or Revolut today and get a sign-up bonus.
+        </p>
+      </div>
+      
+      <div class="space-y-4">
+        <button id="open-invest-choice-btn" class="block w-full glass-button py-4 rounded-lg font-semibold text-center bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 transition-all">
+          Invest $<span id="invest-amount-btn">0.00</span> Now →
+        </button>
+        
+        <button id="close-invest-modal-btn" class="w-full glass-button py-3 rounded-lg font-semibold text-gray-400">
+          Maybe Later
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Investment Choice Modal -->
+  <div id="invest-choice-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div class="glass-card rounded-2xl p-8 max-w-lg w-full mx-4">
+      <div class="text-center mb-6">
+        <h3 class="text-2xl font-bold mb-2 text-gradient">Where would you like to grow your <span id="choice-amount" class="text-green-400 font-mono font-bold">$0.00</span>?</h3>
+      </div>
+      
+      <div class="space-y-4">
+        <!-- Option A: Acorns -->
+        <div class="p-4 rounded-lg bg-green-500/10 border border-green-500/20">
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="text-lg font-bold text-green-400">Acorns Micro-Investing</h4>
+            <span class="px-2 py-1 rounded-full text-xs font-bold bg-green-500 text-white">🎁 $20 Instant Sign-up Bonus</span>
+          </div>
+          <p class="dark:text-gray-300 text-gray-700 text-sm mb-3">Automatically invest spare change into S&P 500 index funds.</p>
+          <a href="#" id="acorns-choice-link" target="_blank" class="block w-full glass-button py-2 rounded-lg font-semibold text-center bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 transition-all text-sm">
+            Claim $20 & Invest on Acorns →
+          </a>
+        </div>
+        
+        <!-- Option B: Revolut -->
+        <div class="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="text-lg font-bold text-blue-400">Revolut Wealth & Stocks</h4>
+            <span class="px-2 py-1 rounded-full text-xs font-bold bg-blue-500 text-white">⚡ Free Fractional Stock + 0% Fees</span>
+          </div>
+          <p class="dark:text-gray-300 text-gray-700 text-sm mb-3">Trade stocks, crypto, and currency with multi-currency banking.</p>
+          <a href="#" id="revolut-choice-link" target="_blank" class="block w-full glass-button py-2 rounded-lg font-semibold text-center bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all text-sm">
+            Claim Free Stock & Invest on Revolut →
+          </a>
+        </div>
+        
+        <button id="close-invest-choice-btn" class="w-full glass-button py-3 rounded-lg font-semibold text-gray-400">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Subscription Leak Scanner Modal -->
+  <div id="leak-scanner-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div class="glass-card rounded-2xl p-8 max-w-lg w-full mx-4">
+      <div class="text-center mb-6">
+        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-red-500 to-orange-600 flex items-center justify-center">
+          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="32" height="32" style="max-width: 32px; max-height: 32px;">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+          </svg>
+        </div>
+        <h3 class="text-2xl font-bold mb-2 text-gradient">Subscription Leak Scanner</h3>
+      </div>
+
+      <p class="dark:text-gray-300 text-gray-700 text-center mb-8 leading-relaxed">
+        Unused recurring subscriptions cost the average person <span class="text-red-400 font-bold">$219/month</span>. Connect Rocket Money or Cleanfox to scan and cancel unused streaming apps, gym memberships, and software in 1 click.
+      </p>
+
+      <div class="space-y-4">
+        <a href="https://www.rocketmoney.com" target="_blank" rel="noopener noreferrer" class="w-full py-3.5 px-6 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition shadow-md flex items-center justify-center text-center block">
+          Scan My Subscriptions →
+        </a>
+
+        <button id="close-leak-scanner-btn" type="button" class="w-full glass-button py-3 rounded-lg font-semibold text-gray-400">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Auth Modal -->
+  <div id="auth-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div class="glass-card rounded-2xl p-8 max-w-md w-full mx-4" onclick="event.stopPropagation()">
+      <div class="text-center mb-6">
+        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center">
+          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="32" height="32" style="max-width: 32px; max-height: 32px;">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+          </svg>
+        </div>
+        <h3 id="auth-modal-title" class="text-2xl font-bold mb-2 text-gradient">Sign In</h3>
+        <p id="auth-modal-subtitle" class="dark:text-gray-400 text-gray-600 text-sm">Access your saved rulings and sync savings</p>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium dark:text-gray-300 text-gray-700 mb-2">Email</label>
+          <input type="email" id="auth-email" class="w-full px-4 py-3 rounded-lg dark:bg-white/10 dark:border-white/20 bg-white border-gray-300 dark:text-white text-gray-900 dark:placeholder-gray-400 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="you@example.com">
+        </div>
+        <div>
+          <label class="block text-sm font-medium dark:text-gray-300 text-gray-700 mb-2">Password</label>
+          <input type="password" id="auth-password" class="w-full px-4 py-3 rounded-lg dark:bg-white/10 dark:border-white/20 bg-white border-gray-300 dark:text-white text-gray-900 dark:placeholder-gray-400 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="••••••••">
+        </div>
+
+        <button id="auth-submit-btn" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold py-3 rounded-lg transition-all">
+          Sign In
+        </button>
+
+        <div class="text-center">
+          <button id="auth-toggle-mode" class="text-sm dark:text-gray-400 text-gray-600 hover:text-purple-400 transition-colors">
+            Don't have an account? Sign Up
+          </button>
+        </div>
+
+        <div id="auth-error" class="hidden text-red-400 text-sm text-center"></div>
+
+        <button id="auth-close-btn" class="text-gray-400 hover:text-white font-bold p-2">✕</button>
+      </div>
+    </div>
+  </div>
+  </main>
+
+  <!-- JavaScript -->
+  <script>
+    // Affiliate Configuration
+    const AFFILIATE_CONFIG = {
+      amazonTag: 'your-amazon-tag-20',
+      ebayCampId: '5330000000',
+      aliExpressId: 'your_aliexpress_id',
+      acornsUrl: 'https://www.acorns.com',
+      revolutUrl: 'https://www.revolut.com',
+      wealthfrontUrl: 'https://www.wealthfront.com',
+      hysaUrl: 'https://www.wealthfront.com',
+      rocketMoneyUrl: 'https://www.rocketmoney.com',
+      rakutenUrl: 'https://www.rakuten.com',
+      zeroAprCardUrl: 'https://www.bankrate.com/finance/credit-cards/balance-transfer/'
+    };
+
+    // Persistent Savings Tracker
+    function loadSavings() {
+      const saved = localStorage.getItem('financialCourtroomSavings');
+      return saved ? parseFloat(saved) : 0;
+    }
+
+    function saveSavings(amount) {
+      localStorage.setItem('financialCourtroomSavings', amount.toString());
+    }
+
+    function updateSavingsDisplay() {
+      const savings = loadSavings();
+      const display = document.getElementById('savings-tracker');
+      if (display) {
+        display.textContent = `$${savings.toFixed(2)}`;
+      }
+    }
+
+    // ==================================================
+    // SUPABASE INTEGRATION
+    // ==================================================
+
+    const SUPABASE_URL = 'https://magyadhrypxpcfoeykdm.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1hZ3lhZGhyeXB4cGNmb2V5a2RtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg2MzIwODcsImV4cCI6MjEwNDIwODA4N30.thiU6hsKkbGd_ZLOWlET_DXLgB1XlNIjBVinUpbu8H0';
+
+    // Defensive check: Supabase client creation
+    let supabaseClient = null;
+    try {
+      if (window.supabase && typeof window.supabase.createClient === 'function') {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      }
+    } catch (error) {
+      console.error('Failed to initialize Supabase client:', error);
+    }
+
+    let currentUser = null;
+    let isSignUpMode = false;
+
+    // Auth Modal Functions
+    function openAuthModal() {
+      console.log('openAuthModal called');
+      const modal = document.getElementById('auth-modal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        const errorDiv = document.getElementById('auth-error');
+        if (errorDiv) errorDiv.classList.add('hidden');
+        console.log('Auth modal opened');
+      } else {
+        console.error('Auth modal element not found');
+      }
+    }
+
+    function closeAuthModal() {
+      const modal = document.getElementById('auth-modal');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        const emailInput = document.getElementById('auth-email');
+        const passwordInput = document.getElementById('auth-password');
+        const errorDiv = document.getElementById('auth-error');
+        if (emailInput) emailInput.value = '';
+        if (passwordInput) passwordInput.value = '';
+        if (errorDiv) errorDiv.classList.add('hidden');
+      }
+    }
+
+    function toggleAuthMode() {
+      isSignUpMode = !isSignUpMode;
+      const title = document.getElementById('auth-modal-title');
+      const subtitle = document.getElementById('auth-modal-subtitle');
+      const submitBtn = document.getElementById('auth-submit-btn');
+      const toggleBtn = document.getElementById('auth-toggle-mode');
+
+      if (isSignUpMode) {
+        title.textContent = 'Sign Up';
+        subtitle.textContent = 'Create an account to save your rulings';
+        submitBtn.textContent = 'Sign Up';
+        toggleBtn.textContent = 'Already have an account? Sign In';
+      } else {
+        title.textContent = 'Sign In';
+        subtitle.textContent = 'Access your saved rulings and sync savings';
+        submitBtn.textContent = 'Sign In';
+        toggleBtn.textContent = "Don't have an account? Sign Up";
+      }
+    }
+
+    async function handleAuth() {
+      const email = document.getElementById('auth-email').value.trim();
+      const password = document.getElementById('auth-password').value;
+      const errorDiv = document.getElementById('auth-error');
+
+      if (!email || !password) {
+        errorDiv.textContent = 'Please enter both email and password';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+
+      if (!supabase) {
+        errorDiv.textContent = 'Authentication service unavailable. Please try again later.';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+
+      try {
+        if (isSignUpMode) {
+          const { data, error } = await supabaseClient.auth.signUp({
+            email,
+            password,
+          });
+          if (error) throw error;
+          // Auto-create profile after signup
+          if (data.user) {
+            await createProfile(data.user.id);
+          }
+        } else {
+          const { data, error } = await supabaseClient.auth.signInWithPassword({
+            email,
+            password,
+          });
+          if (error) throw error;
+        }
+        closeAuthModal();
+      } catch (error) {
+        errorDiv.textContent = error.message || 'Authentication failed. Please try again.';
+        errorDiv.classList.remove('hidden');
+      }
+    }
+
+    async function handleSignOut() {
+      if (supabaseClient) {
+        await supabaseClient.auth.signOut();
+      }
+    }
+
+    async function createProfile(userId) {
+      if (!supabaseClient) return;
+      const { error } = await supabaseClient
+        .from('profiles')
+        .upsert({
+          id: userId,
+          total_savings: 0,
+          updated_at: new Date().toISOString(),
+        });
+      if (error) console.error('Error creating profile:', error);
+    }
+
+    // Auth State Change Handler
+    if (supabaseClient && supabaseClient.auth) {
+      supabaseClient.auth.onAuthStateChange((event, session) => {
+        currentUser = session?.user || null;
+        updateAuthUI();
+
+        if (currentUser) {
+          // Load user's savings from Supabase
+          loadSavingsFromSupabase();
+          // Load case history
+          loadCaseHistory();
+        } else {
+          // Show local savings when logged out
+          updateSavingsDisplay();
+          // Hide case history
+          const historySection = document.getElementById('case-history-section');
+          if (historySection) {
+            historySection.classList.add('hidden');
+          }
+        }
+      });
+    }
+
+    function updateAuthUI() {
+      const authBtn = document.getElementById('open-auth-btn');
+      const authBtnText = document.getElementById('auth-btn-text');
+
+      if (authBtn && authBtnText) {
+        if (currentUser) {
+          authBtnText.textContent = currentUser.email;
+          // Remove existing listeners and add sign out handler
+          authBtn.replaceWith(authBtn.cloneNode(true));
+          const newAuthBtn = document.getElementById('open-auth-btn');
+          newAuthBtn.addEventListener('click', handleSignOut);
+        } else {
+          authBtnText.textContent = 'Sign In';
+          // Remove existing listeners and add open modal handler
+          authBtn.replaceWith(authBtn.cloneNode(true));
+          const newAuthBtn = document.getElementById('open-auth-btn');
+          newAuthBtn.addEventListener('click', openAuthModal);
+        }
+      }
+    }
+
+    // Save Ruling to Supabase
+    async function saveRulingToSupabase() {
+      if (!currentUser || !verdictData.productName || !supabase) return;
+
+      try {
+        const { error } = await supabase
+          .from('cases')
+          .insert({
+            user_id: currentUser.id,
+            product_name: verdictData.productName,
+            product_price: verdictData.price,
+            hourly_wage: verdictData.wage,
+            cost_per_use: verdictData.costPerUse,
+            verdict_text: verdictData.verdict,
+            created_at: new Date().toISOString(),
+          });
+
+        if (error) {
+          console.error('Error saving ruling:', error);
+        } else {
+          // Refresh case history
+          loadCaseHistory();
+        }
+      } catch (error) {
+        console.error('Error saving ruling to Supabase:', error);
+      }
+    }
+
+    // Load Savings from Supabase
+    async function loadSavingsFromSupabase() {
+      if (!currentUser || !supabase) return;
+
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('total_savings')
+          .eq('id', currentUser.id)
+          .single();
+
+        if (error) {
+          console.error('Error loading savings:', error);
+          return;
+        }
+
+        if (data) {
+          const savings = data.total_savings || 0;
+          saveSavings(savings);
+          updateSavingsDisplay();
+        }
+      } catch (error) {
+        console.error('Error loading savings from Supabase:', error);
+      }
+    }
+
+    // Sync Savings to Supabase
+    async function syncSavingsToSupabase(amount) {
+      if (!currentUser || !supabase) return;
+
+      try {
+        const { error } = await supabase
+          .from('profiles')
+          .update({
+            total_savings: amount,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', currentUser.id);
+
+        if (error) {
+          console.error('Error syncing savings:', error);
+        }
+      } catch (error) {
+        console.error('Error syncing savings to Supabase:', error);
+      }
+    }
+
+    // Load Case History
+    async function loadCaseHistory() {
+      if (!currentUser || !supabaseClient) return;
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('cases')
+          .select('*')
+          .eq('user_id', currentUser.id)
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Error loading case history:', error);
+          return;
+        }
+
+        renderCaseHistory(data || []);
+      } catch (error) {
+        console.error('Error loading case history from Supabase:', error);
+      }
+    }
+
+    function renderCaseHistory(cases) {
+      const historySection = document.getElementById('case-history-section');
+      const historyList = document.getElementById('case-history-list');
+      const noHistoryMsg = document.getElementById('no-history-msg');
+
+      if (!historySection || !historyList) return;
+
+      if (!cases || cases.length === 0) {
+        historySection.classList.add('hidden');
+        return;
+      }
+
+      historySection.classList.remove('hidden');
+      historyList.innerHTML = '';
+
+      cases.forEach((caseItem) => {
+        const card = document.createElement('div');
+        card.className = 'glass-card rounded-lg p-4';
+        card.innerHTML = `
+          <div class="flex justify-between items-start mb-2">
+            <h3 class="font-semibold dark:text-white text-gray-900">${caseItem.product_name}</h3>
+            <span class="text-xs dark:text-gray-400 text-gray-600">${new Date(caseItem.created_at).toLocaleDateString()}</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-sm dark:text-gray-300 text-gray-700">$${caseItem.product_price.toFixed(2)}</span>
+            <span class="px-2 py-1 rounded text-xs font-bold ${
+              caseItem.verdict_text === 'APPROVED' ? 'bg-green-500 text-white' :
+              caseItem.verdict_text === 'PROBATION' ? 'bg-yellow-500 text-white' :
+              'bg-red-500 text-white'
+            }">${caseItem.verdict_text}</span>
+          </div>
+        `;
+        historyList.appendChild(card);
+      });
+    }
+
+    // Savings Menu Functions
+    function openSavingsMenu() {
+      console.log('openSavingsMenu called');
+      const currentBalance = parseFloat(localStorage.getItem('courtroom_total_savings') || '0');
+      const annualInterest = (currentBalance * 0.045).toFixed(2);
+
+      document.getElementById('modal-savings').textContent = `$${currentBalance.toFixed(2)}`;
+      document.getElementById('high-yield-total').textContent = `$${currentBalance.toFixed(2)}`;
+      document.getElementById('annual-interest').textContent = annualInterest;
+
+      document.getElementById('savings-modal').classList.remove('hidden');
+      document.getElementById('savings-modal').classList.add('flex');
+      console.log('Savings menu opened');
+    }
+
+    function closeSavingsMenu() {
+      document.getElementById('savings-modal').classList.add('hidden');
+      document.getElementById('savings-modal').classList.remove('flex');
+    }
+
+    function confirmDeduction() {
+      const currentSavings = parseFloat(localStorage.getItem('courtroom_total_savings') || '0');
+      const input = document.getElementById('deduct-amount');
+      const deduction = parseFloat(input.value);
+      
+      if (isNaN(deduction) || deduction <= 0) {
+        alert('Please enter a valid positive amount.');
+        return;
+      }
+      
+      if (deduction > currentSavings) {
+        alert(`Cannot deduct more than current savings ($${currentSavings.toFixed(2)}).`);
+        return;
+      }
+      
+      const newSavings = currentSavings - deduction;
+      localStorage.setItem('courtroom_total_savings', newSavings.toString());
+      updateSavingsDisplay();
+      document.getElementById('modal-savings').textContent = `$${newSavings.toFixed(2)}`;
+      document.getElementById('high-yield-total').textContent = `$${newSavings.toFixed(2)}`;
+      const newAnnualInterest = (newSavings * 0.045).toFixed(2);
+      document.getElementById('annual-interest').textContent = newAnnualInterest;
+      input.value = '';
+      alert(`$${deduction.toFixed(2)} has been deducted from your savings.`);
+    }
+
+    function resetSavings() {
+      const currentSavings = parseFloat(localStorage.getItem('courtroom_total_savings') || '0');
+
+      if (currentSavings === 0) {
+        alert('Savings are already at $0.00');
+        return;
+      }
+
+      if (confirm(`Are you sure you want to reset your total savings from $${currentSavings.toFixed(2)} to $0.00?\n\nThis action cannot be undone.`)) {
+        localStorage.setItem('courtroom_total_savings', '0');
+        updateSavingsDisplay();
+        document.getElementById('modal-savings').textContent = '$0.00';
+        document.getElementById('high-yield-total').textContent = '$0.00';
+        document.getElementById('annual-interest').textContent = '0.00';
+        closeSavingsMenu();
+
+        // Sync to Supabase if logged in
+        if (currentUser) {
+          syncSavingsToSupabase(0);
+        }
+
+        alert('Savings have been reset to $0.00');
+      }
+    }
+
+    // Leak Scanner Functions
+    function openLeakScanner() {
+      document.getElementById('rocket-money-link').href = AFFILIATE_CONFIG.rocketMoneyUrl;
+      document.getElementById('leak-scanner-modal').classList.remove('hidden');
+      document.getElementById('leak-scanner-modal').classList.add('flex');
+    }
+
+    function closeLeakScanner() {
+      document.getElementById('leak-scanner-modal').classList.add('hidden');
+      document.getElementById('leak-scanner-modal').classList.remove('flex');
+    }
+
+    // Wizard State
+    let currentStep = 1;
+    let selectedGrowthYears = 3; // Default to 3 years
+    let isCurrentCaseSaved = false; // Track if current case savings have been banked
+    let verdictData = {
+      productName: '',
+      price: 0,
+      wage: 0,
+      intent: '',
+      frequency: '',
+      replaces: false,
+      defense: '',
+      verdict: '',
+      laborHours: 0,
+      investmentValue: 0,
+      costPerUse: 0,
+      speech: ''
+    };
+
+    // Compound Growth Calculator
+    function setGrowthYears(years) {
+      selectedGrowthYears = parseInt(years);
+      
+      // Update button styles
+      document.querySelectorAll('.growth-year-btn').forEach(btn => {
+        const btnYears = parseInt(btn.dataset.years);
+        if (btnYears === selectedGrowthYears) {
+          btn.className = 'growth-year-btn px-3 py-1 rounded-lg text-sm font-medium bg-green-500/30 border border-green-500/50 transition-all';
+        } else {
+          btn.className = 'growth-year-btn px-3 py-1 rounded-lg text-sm font-medium bg-white/10 hover:bg-white/20 transition-all';
+        }
+      });
+      
+      // Recalculate and display
+      updateGrowthDisplay();
+    }
+
+    function updateGrowthDisplay() {
+      const price = verdictData.price || 0;
+      const futureValue = price * Math.pow(1.07, selectedGrowthYears);
+      const profit = futureValue - price;
+      
+      document.getElementById('investment-value').textContent = `$${futureValue.toFixed(2)}`;
+      document.getElementById('growth-profit').textContent = `+$${profit.toFixed(2)} profit in ${selectedGrowthYears} year${selectedGrowthYears !== 1 ? 's' : ''}`;
+    }
+
+    // Set Wage Preset
+    function setWage(amount) {
+      document.getElementById('hourly-wage').value = amount;
+    }
+
+    // Step Navigation
+    function goToStep(step) {
+      // Validate current step before proceeding
+      if (step > currentStep) {
+        if (!validateStep(currentStep)) {
+          return;
+        }
+      }
+
+      // Hide all steps
+      document.querySelectorAll('.step-content').forEach(el => el.classList.add('hidden'));
+      
+      // Show target step
+      document.getElementById(`step-${step}`).classList.remove('hidden');
+      
+      // Update indicators
+      for (let i = 1; i <= 3; i++) {
+        const indicator = document.getElementById(`step-${i}-indicator`);
+        indicator.classList.remove('active', 'completed');
+        if (i < step) {
+          indicator.classList.add('completed');
+        } else if (i === step) {
+          indicator.classList.add('active');
+        }
+      }
+
+      currentStep = step;
+
+      // If going to step 3, calculate verdict
+      if (step === 3) {
+        isCurrentCaseSaved = false; // Reset save state for new case
+        calculateVerdict();
+      }
+    }
+
+    // Validate Step
+    function validateStep(step) {
+      if (step === 1) {
+        const productName = document.getElementById('product-name').value.trim();
+        const price = parseFloat(document.getElementById('product-price').value);
+        const wage = parseFloat(document.getElementById('hourly-wage').value);
+
+        if (!productName) {
+          alert('Please enter a product name.');
+          return false;
+        }
+        if (!price || price <= 0) {
+          alert('Please enter a valid product price.');
+          return false;
+        }
+        if (!wage || wage <= 0) {
+          alert('Please enter a valid hourly wage.');
+          return false;
+        }
+
+        verdictData.productName = productName;
+        verdictData.price = price;
+        verdictData.wage = wage;
+      }
+
+      if (step === 2) {
+        const intent = document.getElementById('purchase-intent').value;
+        const frequency = document.getElementById('usage-frequency').value;
+
+        if (!intent) {
+          alert('Please select a purchase intent.');
+          return false;
+        }
+        if (!frequency) {
+          alert('Please select a usage frequency.');
+          return false;
+        }
+
+        verdictData.intent = intent;
+        verdictData.frequency = frequency;
+        verdictData.replaces = document.getElementById('replacement-toggle').checked;
+        verdictData.defense = document.getElementById('custom-defense').value.trim();
+      }
+
+      return true;
+    }
+
+    // Calculate Verdict
+    function calculateVerdict() {
+      const { price, wage, intent, frequency, replaces, productName } = verdictData;
+
+      // Calculate labor hours
+      const laborHours = price / wage;
+      verdictData.laborHours = laborHours;
+
+      // Calculate 10-year investment value (7% compound interest)
+      const investmentValue = price * Math.pow(1.07, 10);
+      verdictData.investmentValue = investmentValue;
+
+      // Calculate cost per use based on frequency
+      let usesPerYear = 0;
+      switch (frequency) {
+        case 'daily': usesPerYear = 365; break;
+        case 'weekly': usesPerYear = 52; break;
+        case 'monthly': usesPerYear = 12; break;
+        case 'rarely': usesPerYear = 4; break;
+        case 'once': usesPerYear = 1; break;
+      }
+      const costPerUse = usesPerYear > 0 ? price / usesPerYear : price;
+      verdictData.costPerUse = costPerUse;
+
+      // Determine verdict based on multiple factors
+      let score = 0;
+      
+      // Intent scoring
+      const intentScores = {
+        'essential': 10,
+        'productivity': 8,
+        'investment': 9,
+        'entertainment': 5,
+        'luxury': 3,
+        'impulse': 0
+      };
+      score += intentScores[intent] || 0;
+
+      // Frequency bonus
+      const frequencyBonus = {
+        'daily': 5,
+        'weekly': 4,
+        'monthly': 3,
+        'rarely': 1,
+        'once': 0
+      };
+      score += frequencyBonus[frequency] || 0;
+
+      // Replacement bonus
+      if (replaces) score += 3;
+
+      // Labor hours penalty (more than 40 hours is a red flag)
+      if (laborHours > 40) score -= 3;
+      if (laborHours > 80) score -= 5;
+
+      // Cost per use penalty
+      if (costPerUse > 100) score -= 2;
+      if (costPerUse > 500) score -= 4;
+
+      // Determine verdict
+      let verdict = '';
+      let stampClass = '';
+      let speech = '';
+
+      if (score >= 12) {
+        verdict = 'APPROVED';
+        stampClass = 'stamp-approved';
+        speech = `The court finds in favor of the purchase of ${productName}. This item serves a legitimate purpose with reasonable cost efficiency. The labor required (${laborHours.toFixed(1)} hours) is justified by the intended use. Case dismissed for good cause.`;
+      } else if (score >= 6) {
+        verdict = 'PROBATION';
+        stampClass = 'stamp-probation';
+        speech = `The court places the purchase of ${productName} on probation. While not entirely unjustified, careful consideration is advised. The cost per use of $${costPerUse.toFixed(2)} requires further reflection. Proceed with caution.`;
+      } else {
+        verdict = 'GUILTY OF IMPULSE';
+        stampClass = 'stamp-guilty';
+        speech = `The court finds the defendant guilty of impulse buying. The purchase of ${productName} at $${price.toFixed(2)} requires ${laborHours.toFixed(1)} hours of labor with questionable utility. This case is hereby dismissed. Consider the ${investmentValue.toFixed(2)} this could have grown to in 10 years.`;
+      }
+
+      verdictData.verdict = verdict;
+      verdictData.speech = speech;
+
+      // Update UI
+      const stampContainer = document.getElementById('verdict-stamp');
+      const stampDiv = stampContainer.querySelector('div');
+      stampDiv.textContent = verdict;
+      stampDiv.className = `inline-block px-8 py-4 rounded-lg text-3xl font-bold text-white uppercase tracking-wider ${stampClass}`;
+      stampContainer.classList.remove('hidden');
+
+      document.getElementById('labor-hours').textContent = `${laborHours.toFixed(1)} hours`;
+      document.getElementById('cost-per-use').textContent = `$${costPerUse.toFixed(2)}`;
+      
+      // Update compound growth display with selected years
+      updateGrowthDisplay();
+      
+      document.getElementById('calculations').classList.remove('hidden');
+
+      // Store the English speech for display, but TTS will use translated versions
+      verdictData.speech = speech;
+      document.getElementById('ai-speech').textContent = speech;
+      document.getElementById('speech-section').classList.remove('hidden');
+
+      // Show save button only for approved verdicts (savings from NOT buying)
+      const saveBtn = document.getElementById('save-savings-btn');
+      const savingsAmountDisplay = document.getElementById('savings-amount-display');
+      if (verdict !== 'APPROVED') {
+        saveBtn.classList.remove('hidden');
+        saveBtn.classList.remove('opacity-60', 'cursor-not-allowed', 'bg-green-900/40', 'text-green-300');
+        if (savingsAmountDisplay) {
+          savingsAmountDisplay.textContent = price.toFixed(2);
+        }
+      } else {
+        saveBtn.classList.add('hidden');
+      }
+
+      document.getElementById('action-buttons').classList.remove('hidden');
+
+      // Save ruling to Supabase if logged in
+      saveRulingToSupabase();
+
+      // Module 4: Show cashback card for APPROVED verdicts
+      const cashbackCard = document.getElementById('cashback-card');
+      if (verdict === 'APPROVED') {
+        const estCashback = Math.round(price * 0.05);
+        const totalBenefit = estCashback + 30;
+        
+        document.getElementById('cashback-price').textContent = `$${price.toFixed(2)}`;
+        document.getElementById('est-cashback').textContent = estCashback;
+        document.getElementById('total-benefit').textContent = totalBenefit;
+        document.getElementById('cta-cashback').textContent = estCashback;
+        document.getElementById('rakuten-link').href = AFFILIATE_CONFIG.rakutenUrl;
+        cashbackCard.classList.remove('hidden');
+      } else {
+        cashbackCard.classList.add('hidden');
+      }
+
+      // Module 5: Show 0% APR card for GUILTY verdicts
+      const zeroAprCard = document.getElementById('zero-apr-card');
+      if (verdict === 'GUILTY OF IMPULSE') {
+        document.getElementById('zero-apr-link').href = AFFILIATE_CONFIG.zeroAprCardUrl;
+        zeroAprCard.classList.remove('hidden');
+      } else {
+        zeroAprCard.classList.add('hidden');
+      }
+
+      // Module 6: Show HYSA card for PROBATION verdicts
+      const hysaCard = document.getElementById('hysa-card');
+      if (verdict === 'PROBATION') {
+        document.getElementById('hysa-price').textContent = price.toFixed(2);
+        document.getElementById('hysa-cta-price').textContent = price.toFixed(2);
+        document.getElementById('hysa-link').href = AFFILIATE_CONFIG.hysaUrl;
+        hysaCard.classList.remove('hidden');
+      } else {
+        hysaCard.classList.add('hidden');
+      }
+
+      // ==================================================
+      // ATTACH STEP 3 BUTTON EVENT LISTENERS
+      // ==================================================
+
+      // Note: TTS button uses global event delegation (see handleSpeech function)
+
+      // 1. Save to Total Savings Button
+      const saveSavingsBtn = document.getElementById('save-savings-btn');
+      if (saveSavingsBtn) {
+        // Remove existing listeners by cloning
+        const newSaveBtn = saveSavingsBtn.cloneNode(true);
+        saveSavingsBtn.parentNode.replaceChild(newSaveBtn, saveSavingsBtn);
+
+        newSaveBtn.addEventListener('click', () => {
+          if (isCurrentCaseSaved) return;
+
+          const currentSavings = parseFloat(localStorage.getItem('courtroom_total_savings')) || 0;
+          const newSavings = currentSavings + verdictData.price;
+
+          // Update localStorage
+          localStorage.setItem('courtroom_total_savings', newSavings.toString());
+
+          // Update header counter badge
+          const savingsTracker = document.getElementById('savings-tracker');
+          if (savingsTracker) {
+            savingsTracker.textContent = `$${newSavings.toFixed(2)}`;
+          }
+
+          // Sync to Supabase if logged in
+          if (currentUser) {
+            syncSavingsToSupabase(newSavings);
+          }
+
+          // Mark as saved
+          isCurrentCaseSaved = true;
+
+          // Update button UI
+          newSaveBtn.textContent = `Saved to Vault! ✓`;
+          newSaveBtn.classList.add('opacity-60', 'cursor-not-allowed', 'bg-green-900/40', 'text-green-300');
+          newSaveBtn.disabled = true;
+        });
+      }
+
+      // 3. Start New Case Button
+      const resetCaseBtn = document.getElementById('reset-case-btn');
+      if (resetCaseBtn) {
+        // Remove existing listeners by cloning
+        const newResetBtn = resetCaseBtn.cloneNode(true);
+        resetCaseBtn.parentNode.replaceChild(newResetBtn, resetCaseBtn);
+
+        newResetBtn.addEventListener('click', () => {
+          // Clear input fields
+          document.getElementById('product-name').value = '';
+          document.getElementById('product-price').value = '';
+          document.getElementById('hourly-wage').value = '';
+          document.getElementById('purchase-intent').value = '';
+          document.getElementById('usage-frequency').value = '';
+          document.getElementById('replacement-toggle').checked = false;
+          document.getElementById('custom-defense').value = '';
+
+          // Reset verdict data
+          verdictData = {
+            productName: '',
+            price: 0,
+            wage: 0,
+            intent: '',
+            frequency: '',
+            replaces: false,
+            defense: '',
+            laborHours: 0,
+            costPerUse: 0,
+            investmentValue: 0,
+            verdict: '',
+            speech: ''
+          };
+
+          // Reset step states
+          isCurrentCaseSaved = false;
+
+          // Return to Step 1
+          document.getElementById('step-3').classList.add('hidden');
+          document.getElementById('step-1').classList.remove('hidden');
+          document.getElementById('step-1-indicator').classList.add('active');
+          document.getElementById('step-2-indicator').classList.remove('active', 'completed');
+          document.getElementById('step-3-indicator').classList.remove('active');
+
+          // Hide Step 3 elements
+          document.getElementById('verdict-stamp').classList.add('hidden');
+          document.getElementById('calculations').classList.add('hidden');
+          document.getElementById('speech-section').classList.add('hidden');
+          document.getElementById('action-buttons').classList.add('hidden');
+          document.getElementById('cashback-card').classList.add('hidden');
+          document.getElementById('zero-apr-card').classList.add('hidden');
+          document.getElementById('hysa-card').classList.add('hidden');
+        });
+      }
+    }
+
+    // ==================================================
+    // DARK MODE / LIGHT MODE TOGGLE
+    // ==================================================
+
+    function toggleTheme() {
+      console.log('toggleTheme called');
+      const html = document.documentElement;
+      const isDark = html.classList.toggle('dark');
+      const themeIcon = document.getElementById('theme-icon');
+
+      // Update icon
+      if (themeIcon) {
+        themeIcon.textContent = isDark ? '☀️' : '🌙';
+      }
+
+      // Save preference to localStorage
+      localStorage.setItem('financial_courtroom_theme', isDark ? 'dark' : 'light');
+      console.log('Theme toggled to:', isDark ? 'dark' : 'light');
+    }
+
+    function initTheme() {
+      const html = document.documentElement;
+      const themeIcon = document.getElementById('theme-icon');
+
+      // Check localStorage first
+      const savedTheme = localStorage.getItem('financial_courtroom_theme');
+
+      if (savedTheme) {
+        // Use saved preference
+        if (savedTheme === 'dark') {
+          html.classList.add('dark');
+          if (themeIcon) themeIcon.textContent = '☀️';
+        } else {
+          html.classList.remove('dark');
+          if (themeIcon) themeIcon.textContent = '🌙';
+        }
+      } else {
+        // Check system preference
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (prefersDark) {
+          html.classList.add('dark');
+          if (themeIcon) themeIcon.textContent = '☀️';
+        } else {
+          html.classList.remove('dark');
+          if (themeIcon) themeIcon.textContent = '🌙';
+        }
+      }
+    }
+
+
+
+    // ==================================================
+    // CLEAN CROSS-DEVICE TEXT-TO-SPEECH (PLAY / STOP)
+    // ==================================================
+
+    // Simplified TTS handler
+    function handleSpeech() {
+      if (!('speechSynthesis' in window)) {
+        alert('Text-to-speech is not supported on this browser.');
+        return;
+      }
+      const synth = window.speechSynthesis;
+
+      // If currently speaking, stop it
+      if (synth.speaking) {
+        synth.cancel();
+        const btn = document.getElementById('tts-toggle-btn');
+        if (btn) btn.innerText = '🔊 Listen to Ruling';
+        return;
+      }
+
+      // Get text to read
+      const rulingText = document.getElementById('ai-speech')?.innerText ||
+                         document.querySelector('.ai-ruling-container')?.innerText ||
+                         'The court has delivered its ruling.';
+
+      synth.cancel(); // Clear queue
+
+      const utterance = new SpeechSynthesisUtterance(rulingText);
+      utterance.rate = 1.0;
+      utterance.pitch = 1.0;
+
+      const btn = document.getElementById('tts-toggle-btn');
+      if (btn) btn.innerText = '⏹️ Stop Audio';
+
+      utterance.onend = () => { if (btn) btn.innerText = '🔊 Listen to Ruling'; };
+      utterance.onerror = () => { if (btn) btn.innerText = '🔊 Listen to Ruling'; };
+
+      synth.speak(utterance);
+    }
+
+    // Global event delegation for TTS button
+    document.addEventListener('click', (e) => {
+      if (e.target && (e.target.id === 'tts-toggle-btn' || e.target.closest('#tts-toggle-btn'))) {
+        handleSpeech();
+      }
+    });
+
+    function getPreferredVoice() {
+      if (!('speechSynthesis' in window)) return null;
+      const voices = window.speechSynthesis.getVoices();
+      if (!voices || voices.length === 0) return null;
+
+      // Pick standard male or natural English voice
+      return voices.find(v =>
+        v.lang.startsWith('en') &&
+        (v.name.includes('Male') || v.name.includes('David') || v.name.includes('Google US English') || v.name.includes('Natural'))
+      ) || voices.find(v => v.lang.startsWith('en')) || voices[0];
+    }
+
+    // Pre-warm voice engine for Chrome and Safari
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = () => getPreferredVoice();
+    }
+
+    function initTTS() {
+      const ttsBtn = document.getElementById('tts-toggle-btn');
+      const textCard = document.getElementById('ai-speech');
+      if (!ttsBtn || !textCard) return;
+
+      ttsBtn.addEventListener('click', () => {
+        const synth = window.speechSynthesis;
+        if (!synth) return;
+
+        // STATE 1: If currently speaking, STOP cleanly
+        if (synth.speaking) {
+          synth.cancel();
+          updateTTSUI(false);
+          return;
+        }
+
+        // STATE 2: If stopped, START speaking synchronously
+        synth.cancel(); // Clear any hung browser queues
+
+        const rulingText = textCard.innerText.trim();
+        if (!rulingText) return;
+
+        window.currentUtterance = new SpeechSynthesisUtterance(rulingText);
+
+        const voice = getPreferredVoice();
+        if (voice) window.currentUtterance.voice = voice;
+
+        window.currentUtterance.pitch = 0.9;
+        window.currentUtterance.rate = 0.95;
+
+        // State listeners
+        window.currentUtterance.onstart = () => updateTTSUI(true);
+        window.currentUtterance.onend = () => updateTTSUI(false);
+        window.currentUtterance.onerror = () => updateTTSUI(false);
+
+        // Execute synchronously to preserve touch gesture permissions on mobile
+        synth.speak(window.currentUtterance);
+      });
+    }
+
+    function updateTTSUI(isPlaying) {
+      const icon = document.getElementById('tts-icon');
+      const label = document.getElementById('tts-label');
+      const btn = document.getElementById('tts-toggle-btn');
+      if (!btn) return;
+
+      if (isPlaying) {
+        if (icon) icon.textContent = '⏹';
+        if (label) label.textContent = 'Stop Ruling';
+        btn.className = "w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md";
+      } else {
+        if (icon) icon.textContent = '🔊';
+        if (label) label.textContent = 'Listen to Ruling';
+        btn.className = "w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md";
+      }
+    }
+
+    // Clean up speech when user leaves or hides tab
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+        updateTTSUI(false);
+      }
+    });
+
+
+
+    // Save to Savings
+    function saveToSavings() {
+      // Prevent spamming - check if already saved for this case
+      if (isCurrentCaseSaved) {
+        return;
+      }
+
+      const currentSavings = loadSavings();
+      const newSavings = currentSavings + verdictData.price;
+      saveSavings(newSavings);
+      updateSavingsDisplay();
+
+      // Sync to Supabase if logged in
+      if (currentUser) {
+        syncSavingsToSupabase(newSavings);
+      }
+
+      // Mark as saved
+      isCurrentCaseSaved = true;
+
+      // Update button UI to disabled state
+      const saveBtn = document.getElementById('save-savings-btn');
+      saveBtn.textContent = `✓ $${verdictData.price.toFixed(2)} Saved to Total Savings`;
+      saveBtn.classList.add('opacity-60', 'cursor-not-allowed', 'bg-green-900/40', 'text-green-300');
+
+      // Show invest success modal
+      const amount = verdictData.price.toFixed(2);
+      document.getElementById('invest-amount-text').textContent = `$${amount}`;
+      document.getElementById('invest-amount-card').textContent = `$${amount}`;
+      document.getElementById('invest-amount-btn').textContent = amount;
+      document.getElementById('acorns-link').href = AFFILIATE_CONFIG.acornsUrl;
+
+      document.getElementById('invest-success-modal').classList.remove('hidden');
+      document.getElementById('invest-success-modal').classList.add('flex');
+    }
+
+    function closeInvestModal() {
+      document.getElementById('invest-success-modal').classList.add('hidden');
+      document.getElementById('invest-success-modal').classList.remove('flex');
+    }
+
+    function openInvestChoiceModal() {
+      const amount = verdictData.price.toFixed(2);
+      document.getElementById('choice-amount').textContent = `$${amount}`;
+      document.getElementById('acorns-choice-link').href = AFFILIATE_CONFIG.acornsUrl;
+      document.getElementById('revolut-choice-link').href = AFFILIATE_CONFIG.revolutUrl;
+      
+      document.getElementById('invest-success-modal').classList.add('hidden');
+      document.getElementById('invest-success-modal').classList.remove('flex');
+      
+      document.getElementById('invest-choice-modal').classList.remove('hidden');
+      document.getElementById('invest-choice-modal').classList.add('flex');
+    }
+
+    function closeInvestChoiceModal() {
+      document.getElementById('invest-choice-modal').classList.add('hidden');
+      document.getElementById('invest-choice-modal').classList.remove('flex');
+    }
+
+    // Reset Wizard
+    function resetWizard() {
+      // Reset save state for new case
+      isCurrentCaseSaved = false;
+
+      // Reset form fields
+      document.getElementById('product-name').value = '';
+      document.getElementById('product-price').value = '';
+      document.getElementById('hourly-wage').value = '';
+      document.getElementById('purchase-intent').value = '';
+      document.getElementById('usage-frequency').value = '';
+      document.getElementById('replacement-toggle').checked = false;
+      document.getElementById('custom-defense').value = '';
+
+      // Reset verdict data
+      verdictData = {
+        productName: '',
+        price: 0,
+        wage: 0,
+        intent: '',
+        frequency: '',
+        replaces: false,
+        defense: '',
+        verdict: '',
+        laborHours: 0,
+        investmentValue: 0,
+        costPerUse: 0,
+        speech: ''
+      };
+
+      // Hide verdict elements
+      document.getElementById('verdict-stamp').classList.add('hidden');
+      document.getElementById('calculations').classList.add('hidden');
+      document.getElementById('speech-section').classList.add('hidden');
+      document.getElementById('action-buttons').classList.add('hidden');
+
+      // Go back to step 1
+      goToStep(1);
+    }
+
+
+
+    // ============ BARGAIN ENGINE ============
+    // Smart Price Keyword Dictionary
+    const PRICE_KEYWORDS = {
+      'iphone 15 pro max': 1199.00,
+      '15 pro max': 1199.00,
+      'iphone 15 pro': 999.00,
+      '15 pro': 999.00,
+      'iphone 15': 799.00,
+      'iphone 14 pro max': 899.00,
+      '14 pro max': 899.00,
+      'iphone 14 pro': 799.00,
+      '14 pro': 799.00,
+      'iphone 14': 699.00,
+      'iphone 13 pro max': 699.00,
+      '13 pro max': 699.00,
+      'iphone 13 pro': 599.00,
+      '13 pro': 599.00,
+      'iphone 13': 499.00,
+      'iphone 12 pro max': 550.00,
+      '12 pro max': 550.00,
+      'iphone 12 pro': 499.00,
+      '12 pro': 499.00,
+      'iphone 12': 449.00,
+      'iphone': 999.00,
+      'flagship phone': 999.00,
+      'smartphone': 999.00,
+      'macbook': 999.00,
+      'laptop': 999.00,
+      'notebook': 999.00,
+      'ps5': 499.00,
+      'playstation 5': 499.00,
+      'playstation': 499.00,
+      'xbox': 499.00,
+      'console': 499.00,
+      'keyboard': 100.00,
+      'mouse': 120.00,
+      'headset': 120.00,
+      'headphones': 120.00,
+      'monitor': 299.00,
+      'tv': 499.00,
+      'television': 499.00,
+      'tablet': 399.00,
+      'ipad': 399.00,
+      'watch': 399.00,
+      'smartwatch': 399.00,
+      'camera': 799.00,
+      'speaker': 199.00,
+      'earbuds': 149.00,
+      'airpods': 149.00
+    };
+
+    // Specific marketplace price mappings for accurate pricing
+    const MARKETPLACE_PRICES = {
+      'iphone 15 pro max': { retail: 1199.00, amazon: 1049.00, ebay: 980.00, aliexpress: 920.00 },
+      '15 pro max': { retail: 1199.00, amazon: 1049.00, ebay: 980.00, aliexpress: 920.00 },
+      'iphone 14 pro max': { retail: 899.00, amazon: 780.00, ebay: 720.00, aliexpress: 670.00 },
+      '14 pro max': { retail: 899.00, amazon: 780.00, ebay: 720.00, aliexpress: 670.00 },
+      'iphone 13 pro max': { retail: 699.00, amazon: 590.00, ebay: 540.00, aliexpress: 490.00 },
+      '13 pro max': { retail: 699.00, amazon: 590.00, ebay: 540.00, aliexpress: 490.00 },
+      'iphone 12 pro max': { retail: 550.00, amazon: 460.00, ebay: 410.00, aliexpress: 380.00 },
+      '12 pro max': { retail: 550.00, amazon: 460.00, ebay: 410.00, aliexpress: 380.00 }
+    };
+
+    function estimateRetailPrice(query) {
+      const lowerQuery = query.toLowerCase();
+
+      // Check if active case price exists and matches query
+      if (verdictData.price > 0 && verdictData.productName) {
+        const caseName = verdictData.productName.toLowerCase();
+        if (lowerQuery.includes(caseName) || caseName.includes(lowerQuery)) {
+          return verdictData.price;
+        }
+      }
+
+      // Check for specific marketplace prices first
+      for (const [keyword, prices] of Object.entries(MARKETPLACE_PRICES)) {
+        if (lowerQuery.includes(keyword)) {
+          return prices.retail;
+        }
+      }
+
+      // Specific model number/keyword matching (more specific first)
+      for (const [keyword, price] of Object.entries(PRICE_KEYWORDS)) {
+        if (lowerQuery.includes(keyword)) {
+          return price;
+        }
+      }
+
+      // Default fallback for realistic market rate
+      return 150.00;
+    }
+
+    function calculateBargains() {
+      const query = document.getElementById('bargain-search-input').value.trim();
+      if (!query) {
+        return;
+      }
+
+      // Strict container wiping
+      const resultsContainer = document.getElementById('bargain-results-container');
+      resultsContainer.innerHTML = '';
+
+      // Show loading indicator
+      resultsContainer.innerHTML = `<div class="p-4 text-center text-slate-400">🔍 Scanning live market deals for "${query}"...</div>`;
+
+      // Clean query sanitization for price matching
+      const cleanQuery = query.trim().replace(/\s+/g, ' ');
+
+      // Raw query for URL generation (no extra keywords)
+      const rawQuery = query.trim().replace(/\s+/g, ' ');
+
+      // Determine base price dynamically
+      const basePrice = estimateRetailPrice(cleanQuery);
+
+      // Get specific marketplace prices if available
+      let marketplacePrices = null;
+      const lowerQuery = cleanQuery.toLowerCase();
+      for (const [keyword, prices] of Object.entries(MARKETPLACE_PRICES)) {
+        if (lowerQuery.includes(keyword)) {
+          marketplacePrices = prices;
+          break;
+        }
+      }
+
+      // Use specific marketplace prices or calculate from base price
+      let amazonPrice, ebayPrice, aliexpressPrice;
+      if (marketplacePrices) {
+        amazonPrice = marketplacePrices.amazon;
+        ebayPrice = marketplacePrices.ebay;
+        aliexpressPrice = marketplacePrices.aliexpress;
+      } else {
+        // Fallback to percentage-based calculations
+        amazonPrice = basePrice * 0.85;
+        ebayPrice = basePrice * 0.72;
+        aliexpressPrice = basePrice * 0.58;
+      }
+
+      const amazonSavings = basePrice - amazonPrice;
+      const ebaySavings = basePrice - ebayPrice;
+      const aliexpressSavings = basePrice - aliexpressPrice;
+
+      // Generate live search links with raw query (no extra keywords)
+      const amazonUrl = `https://www.amazon.com/s?k=${encodeURIComponent(rawQuery)}`;
+      const ebayUrl = `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(rawQuery)}`;
+      const aliexpressUrl = `https://www.aliexpress.com/w/wholesale-${encodeURIComponent(rawQuery)}.html`;
+
+      // Update UI with results showing retail vs bargain prices
+      resultsContainer.innerHTML = `
+        <div class="p-4 rounded-lg bg-white/5 border border-white/10 flex items-center justify-between">
+          <div>
+            <p class="font-semibold text-orange-400">Amazon Renewed</p>
+            <p class="text-2xl font-mono font-bold">$${amazonPrice.toFixed(2)}</p>
+            <p class="text-xs text-gray-400">Est. Retail: $${basePrice.toFixed(2)} → Est: $${amazonPrice.toFixed(2)} (Save $${amazonSavings.toFixed(2)})</p>
+            <p class="text-sm text-gray-400 mt-1">~15% discount, 90-day warranty</p>
+          </div>
+          <a href="${amazonUrl}" target="_blank" rel="noopener noreferrer" class="glass-button px-4 py-2 rounded-lg text-sm font-medium">
+            View Deal →
+          </a>
+        </div>
+
+        <div class="p-4 rounded-lg bg-white/5 border border-white/10 flex items-center justify-between">
+          <div>
+            <p class="font-semibold text-blue-400">eBay Certified Refurbished</p>
+            <p class="text-2xl font-mono font-bold">$${ebayPrice.toFixed(2)}</p>
+            <p class="text-xs text-gray-400">Est. Retail: $${basePrice.toFixed(2)} → Est: $${ebayPrice.toFixed(2)} (Save $${ebaySavings.toFixed(2)})</p>
+            <p class="text-sm text-gray-400 mt-1">~28% discount, seller rating dependent</p>
+          </div>
+          <a href="${ebayUrl}" target="_blank" rel="noopener noreferrer" class="glass-button px-4 py-2 rounded-lg text-sm font-medium">
+            View Deal →
+          </a>
+        </div>
+
+        <div class="p-4 rounded-lg bg-white/5 border border-white/10 flex items-center justify-between">
+          <div>
+            <p class="font-semibold text-red-400">AliExpress / Open-Box</p>
+            <p class="text-2xl font-mono font-bold">$${aliexpressPrice.toFixed(2)}</p>
+            <p class="text-xs text-gray-400">Est. Retail: $${basePrice.toFixed(2)} → Est: $${aliexpressPrice.toFixed(2)} (Save $${aliexpressSavings.toFixed(2)})</p>
+            <p class="text-sm text-gray-400 mt-1">~42% discount, longer shipping</p>
+          </div>
+          <a href="${aliexpressUrl}" target="_blank" rel="noopener noreferrer" class="glass-button px-4 py-2 rounded-lg text-sm font-medium">
+            View Deal →
+          </a>
+        </div>
+      `;
+    }
+
+    // ============ SOCIAL CARD GENERATOR ============
+    function generateSocialCard() {
+      if (!verdictData.productName || !verdictData.price) {
+        alert('Please complete the wizard first to generate a card');
+        return;
+      }
+
+      document.getElementById('card-product').textContent = verdictData.productName;
+      document.getElementById('card-price').textContent = `$${verdictData.price.toFixed(2)}`;
+      document.getElementById('card-labor').textContent = verdictData.laborHours.toFixed(1);
+      document.getElementById('card-investment').textContent = verdictData.investmentValue.toFixed(0);
+
+      const verdictEl = document.getElementById('card-verdict');
+      verdictEl.textContent = verdictData.verdict;
+      
+      if (verdictData.verdict === 'APPROVED') {
+        verdictEl.className = 'px-3 py-1 rounded-full text-sm font-bold uppercase bg-green-500';
+      } else if (verdictData.verdict === 'PROBATION') {
+        verdictEl.className = 'px-3 py-1 rounded-full text-sm font-bold uppercase bg-yellow-500';
+      } else {
+        verdictEl.className = 'px-3 py-1 rounded-full text-sm font-bold uppercase bg-red-500';
+      }
+
+      document.getElementById('social-card').classList.remove('hidden');
+    }
+
+    function downloadCard() {
+      const canvas = document.getElementById('card-canvas');
+      
+      // Use html2canvas to capture the card and download as PNG
+      html2canvas(canvas, {
+        scale: 2, // High quality output
+        backgroundColor: null, // Transparent background
+        logging: false
+      }).then(canvasEl => {
+        const link = document.createElement('a');
+        link.download = 'financial-courtroom-verdict.png';
+        link.href = canvasEl.toDataURL('image/png');
+        link.click();
+      }).catch(err => {
+        console.error('Error generating image:', err);
+        alert('Failed to generate image. Please try again.');
+      });
+    }
+
+    function copyCardText() {
+      const text = `Financial Courtroom Verdict:\n\nProduct: ${verdictData.productName}\nPrice: $${verdictData.price.toFixed(2)}\nVerdict: ${verdictData.verdict}\nLabor Hours: ${verdictData.laborHours.toFixed(1)}\n10-Year Investment Value: $${verdictData.investmentValue.toFixed(2)}\n\n#FinancialCourtroom #SmartSpending`;
+      
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Card text copied to clipboard!');
+      }).catch(() => {
+        alert('Failed to copy text');
+      });
+    }
+
+    // ============ 48-HOUR WISHLIST VAULT ============
+    let wishlist = [];
+    let countdownInterval = null;
+
+    function loadWishlist() {
+      const saved = localStorage.getItem('wishlistVault');
+      wishlist = saved ? JSON.parse(saved) : [];
+      renderWishlist();
+    }
+
+    function saveWishlist() {
+      localStorage.setItem('wishlistVault', JSON.stringify(wishlist));
+    }
+
+    function addToWishlist() {
+      const nameInput = document.getElementById('wishlist-item');
+      const priceInput = document.getElementById('wishlist-price');
+      const nameValue = nameInput.value.trim();
+      const priceValue = parseFloat(priceInput.value);
+
+      if (!nameValue || !priceValue || priceValue <= 0) {
+        alert('Please enter a valid item name and price');
+        return;
+      }
+
+      const newItem = {
+        id: Date.now().toString(),
+        name: nameValue,
+        price: priceValue,
+        addedAt: Date.now(),
+        unlockTime: Date.now() + (48 * 60 * 60 * 1000) // 48 hours in ms
+      };
+
+      wishlist.push(newItem);
+      saveWishlist();
+      renderWishlist();
+
+      nameInput.value = '';
+      priceInput.value = '';
+    }
+
+    function formatTimeRemaining(ms) {
+      if (ms <= 0) return '0h 0m';
+      const hours = Math.floor(ms / (1000 * 60 * 60));
+      const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+      return `${hours}h ${minutes}m`;
+    }
+
+    function renderWishlist() {
+      const container = document.getElementById('wishlist-items');
+      const now = Date.now();
+      
+      if (wishlist.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 text-center py-8">No items in wishlist</p>';
+        return;
+      }
+
+      container.innerHTML = wishlist.map(item => {
+        const isLocked = now < item.unlockTime;
+        const timeRemaining = item.unlockTime - now;
+        const formattedPrice = `$${item.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        
+        return `
+          <div class="p-4 rounded-xl border bg-white/80 backdrop-blur-sm border-slate-200 text-slate-900 dark:bg-slate-800/80 dark:border-slate-700 dark:text-slate-100 flex items-center justify-between gap-4">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <h4 class="font-bold">${item.name}</h4>
+                <span class="text-sm font-mono text-indigo-600 dark:text-indigo-400">${formattedPrice}</span>
+              </div>
+              <div class="flex items-center gap-2">
+                ${isLocked 
+                  ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 text-xs font-medium rounded-full">🔒 Locked · ${formatTimeRemaining(timeRemaining)} remaining</span>`
+                  : `<span class="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 text-xs font-medium rounded-full">🔓 Ready for Purchase</span>`
+                }
+              </div>
+            </div>
+            <button class="remove-wishlist-btn px-3 py-1.5 rounded-lg text-sm font-medium bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50 transition" data-id="${item.id}">
+              Delete
+            </button>
+          </div>
+        `;
+      }).join('');
+
+      // Add event listeners to remove buttons
+      container.querySelectorAll('.remove-wishlist-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.id;
+          removeFromWishlist(id);
+        });
+      });
+    }
+
+    function removeFromWishlist(id) {
+      wishlist = wishlist.filter(item => item.id !== id);
+      saveWishlist();
+      renderWishlist();
+    }
+
+    function clearExpiredWishlist() {
+      const now = Date.now();
+      const active = wishlist.filter(item => item.unlockTime > now);
+      const expiredCount = wishlist.length - active.length;
+      
+      wishlist = active;
+      saveWishlist();
+      renderWishlist();
+      
+      if (expiredCount > 0) {
+        alert(`Cleared ${expiredCount} expired item(s)`);
+      }
+    }
+
+    function startCountdownInterval() {
+      if (countdownInterval) {
+        clearInterval(countdownInterval);
+      }
+      
+      countdownInterval = setInterval(() => {
+        if (wishlist.length > 0) {
+          renderWishlist();
+        }
+      }, 60000); // Update every minute
+    }
+
+    // ============ COMMUNITY WALL OF SHAME ============
+    let confessions = [];
+
+    function loadWallOfShame() {
+      const saved = localStorage.getItem('wallOfShame');
+      confessions = saved ? JSON.parse(saved) : [];
+      renderConfessions();
+    }
+
+    function saveConfessions() {
+      localStorage.setItem('wallOfShame', JSON.stringify(confessions));
+    }
+
+    function addToWallOfShame() {
+      const nameInput = document.getElementById('shame-item');
+      const priceInput = document.getElementById('shame-price');
+      const nameValue = nameInput.value.trim();
+      const priceValue = parseFloat(priceInput.value);
+
+      if (!nameValue || !priceValue || priceValue <= 0) {
+        alert('Please enter a valid item name and price');
+        return;
+      }
+
+      const newConfession = {
+        id: Date.now().toString(),
+        name: nameValue,
+        price: priceValue,
+        addedAt: Date.now()
+      };
+
+      confessions.push(newConfession);
+      saveConfessions();
+      renderConfessions();
+
+      nameInput.value = '';
+      priceInput.value = '';
+    }
+
+    function renderConfessions() {
+      const container = document.getElementById('wall-of-shame-items');
+      const totalRegretEl = document.getElementById('total-regret');
+      
+      if (confessions.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 text-center py-8">No confessions yet - stay strong!</p>';
+        if (totalRegretEl) totalRegretEl.textContent = '$0.00';
+        return;
+      }
+
+      const totalRegret = confessions.reduce((sum, item) => sum + item.price, 0);
+      if (totalRegretEl) {
+        totalRegretEl.textContent = `$${totalRegret.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      }
+
+      container.innerHTML = confessions.map(item => {
+        const formattedPrice = `$${item.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        const date = new Date(item.addedAt).toLocaleDateString();
+        
+        return `
+          <div class="p-4 rounded-xl border bg-red-50/50 backdrop-blur-sm border-red-200 text-slate-900 dark:bg-red-950/30 dark:border-red-700 dark:text-slate-100 flex items-center justify-between gap-4">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <h4 class="font-bold text-red-700 dark:text-red-400">${item.name}</h4>
+                <span class="text-sm font-mono text-red-600 dark:text-red-300">${formattedPrice}</span>
+              </div>
+              <p class="text-xs text-gray-500 dark:text-gray-400">${date}</p>
+            </div>
+            <button class="remove-confession-btn px-3 py-1.5 rounded-lg text-sm font-medium bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50 transition" data-id="${item.id}">
+              Delete
+            </button>
+          </div>
+        `;
+      }).join('');
+
+      // Add event listeners to remove buttons
+      container.querySelectorAll('.remove-confession-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.id;
+          removeConfession(id);
+        });
+      });
+    }
+
+    function removeConfession(id) {
+      confessions = confessions.filter(item => item.id !== id);
+      saveConfessions();
+      renderConfessions();
+    }
+
+    function clearAllConfessions() {
+      confessions = [];
+      localStorage.removeItem('wallOfShame');
+      renderConfessions();
+    }
+
+
+    // ==================================================
+    // CONSOLIDATED INITIALIZATION
+    // ==================================================
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log("DOM loaded. Attaching button event listeners...");
+
+        // 1. Theme Toggle
+        const themeBtn = document.getElementById('theme-toggle-btn');
+        const themeIcon = document.getElementById('theme-icon');
+        if (themeBtn) {
+            themeBtn.onclick = () => {
+                console.log("Theme toggle clicked");
+                document.documentElement.classList.toggle('dark');
+                const isDark = document.documentElement.classList.contains('dark');
+                if (themeIcon) themeIcon.textContent = isDark ? '☀️' : '🌙';
+                localStorage.setItem('financial_courtroom_theme', isDark ? 'dark' : 'light');
+            };
+        } else {
+            console.error("theme-toggle-btn not found in HTML!");
+        }
+
+        // 2. Auth Modal Toggle
+        const openAuthBtn = document.getElementById('open-auth-btn');
+        const closeAuthBtn = document.getElementById('auth-close-btn');
+        const authModal = document.getElementById('auth-modal');
+
+        if (openAuthBtn && authModal) {
+            openAuthBtn.onclick = () => {
+                console.log("Sign In clicked");
+                authModal.classList.remove('hidden');
+                authModal.classList.add('flex');
+            };
+        } else {
+            console.error("Auth modal trigger or modal element missing!");
+        }
+
+        if (closeAuthBtn && authModal) {
+            closeAuthBtn.onclick = () => {
+                authModal.classList.add('hidden');
+                authModal.classList.remove('flex');
+            };
+        }
+
+        // 3. Initialize theme on load
+        const savedTheme = localStorage.getItem('financial_courtroom_theme');
+        if (savedTheme === 'dark') {
+            document.documentElement.classList.add('dark');
+            if (themeIcon) themeIcon.textContent = '☀️';
+        } else if (savedTheme === 'light') {
+            document.documentElement.classList.remove('dark');
+            if (themeIcon) themeIcon.textContent = '🌙';
+        }
+
+        // 4. Wizard navigation buttons
+        const goToStep2Btn = document.getElementById('go-to-step-2-btn');
+        if (goToStep2Btn) {
+            goToStep2Btn.onclick = () => {
+                console.log("Go to Step 2 clicked");
+
+                // Collect data from Step 1
+                const productName = document.getElementById('product-name').value.trim();
+                const price = parseFloat(document.getElementById('product-price').value) || 0;
+                const wage = parseFloat(document.getElementById('hourly-wage').value) || 0;
+
+                if (!productName || price <= 0 || wage <= 0) {
+                    alert('Please complete all fields in Step 1 before proceeding.');
+                    return;
+                }
+
+                // Update verdictData
+                verdictData.productName = productName;
+                verdictData.price = price;
+                verdictData.wage = wage;
+
+                // Navigate to Step 2
+                const step1 = document.getElementById('step-1');
+                const step2 = document.getElementById('step-2');
+                if (step1) step1.classList.add('hidden');
+                if (step2) step2.classList.remove('hidden');
+
+                document.getElementById('step-1-indicator').classList.remove('active');
+                document.getElementById('step-1-indicator').classList.add('completed');
+                document.getElementById('step-2-indicator').classList.add('active');
+            };
+        }
+
+        const goToStep1Btn = document.getElementById('go-to-step-1-btn');
+        if (goToStep1Btn) {
+            goToStep1Btn.onclick = () => {
+                console.log("Go to Step 1 clicked");
+                document.getElementById('step-2').classList.add('hidden');
+                document.getElementById('step-1').classList.remove('hidden');
+                document.getElementById('step-2-indicator').classList.remove('active');
+                document.getElementById('step-1-indicator').classList.add('active');
+                document.getElementById('step-1-indicator').classList.remove('completed');
+            };
+        }
+
+        const goToStep3Btn = document.getElementById('goto-step3-btn');
+        if (goToStep3Btn) {
+            goToStep3Btn.onclick = (e) => {
+                e.preventDefault();
+
+                try {
+                    // Safely read values with fallback defaults
+                    const productName = document.getElementById('product-name')?.value?.trim() || 'Item';
+                    const price = parseFloat(document.getElementById('product-price')?.value) || 0;
+                    const wage = parseFloat(document.getElementById('hourly-wage')?.value) || 1;
+                    const intent = document.getElementById('purchase-intent')?.value || '';
+                    const frequency = document.getElementById('usage-frequency')?.value || '';
+                    const replaces = document.getElementById('replacement-toggle')?.checked || false;
+                    const defense = document.getElementById('custom-defense')?.value?.trim() || '';
+
+                    // Update verdictData
+                    verdictData.productName = productName;
+                    verdictData.price = price;
+                    verdictData.wage = wage;
+                    verdictData.intent = intent;
+                    verdictData.frequency = frequency;
+                    verdictData.replaces = replaces;
+                    verdictData.defense = defense;
+
+                    // Switch step views directly
+                    const step2 = document.getElementById('step-2');
+                    const step3 = document.getElementById('step-3');
+                    if (step2) step2.classList.add('hidden');
+                    if (step3) step3.classList.remove('hidden');
+
+                    document.getElementById('step-2-indicator').classList.remove('active');
+                    document.getElementById('step-2-indicator').classList.add('completed');
+                    document.getElementById('step-3-indicator').classList.add('active');
+
+                    // Calculate and render verdict (wrapped in try-catch so Step 3 always opens)
+                    try {
+                        calculateVerdict();
+                    } catch (calcError) {
+                        console.error('Error in calculateVerdict:', calcError);
+                    }
+
+                    // Update Bargain Engine product input
+                    const bargainSearchInput = document.getElementById('bargain-search-input');
+                    if (bargainSearchInput && verdictData.productName) {
+                        bargainSearchInput.value = verdictData.productName;
+                    }
+
+                } catch (error) {
+                    console.error('Error in goto-step3-btn handler:', error);
+                    // Ensure Step 3 opens even if there's an error
+                    const step2 = document.getElementById('step-2');
+                    const step3 = document.getElementById('step-3');
+                    if (step2) step2.classList.add('hidden');
+                    if (step3) step3.classList.remove('hidden');
+                }
+            };
+        }
+
+        const resetCaseBtn = document.getElementById('reset-case-btn');
+        if (resetCaseBtn) {
+            resetCaseBtn.onclick = () => {
+                console.log("Reset case clicked");
+                document.getElementById('step-3').classList.add('hidden');
+                document.getElementById('step-1').classList.remove('hidden');
+                document.getElementById('step-1-indicator').classList.add('active');
+                document.getElementById('step-2-indicator').classList.remove('active', 'completed');
+                document.getElementById('step-3-indicator').classList.remove('active');
+            };
+        }
+
+        // 5. Set wage buttons
+        const setWageBtns = document.querySelectorAll('.set-wage-btn');
+        setWageBtns.forEach(btn => {
+            btn.onclick = () => {
+                const wage = btn.dataset.wage;
+                const wageInput = document.getElementById('hourly-wage');
+                if (wageInput) wageInput.value = wage;
+            };
+        });
+
+        // 6. Savings badge
+        const savingsBadge = document.getElementById('savings-badge');
+        if (savingsBadge) {
+            savingsBadge.onclick = () => {
+                openSavingsMenu();
+            };
+        }
+
+        // 7. Close savings menu
+        const closeSavingsMenuBtn = document.getElementById('close-savings-menu-btn');
+        if (closeSavingsMenuBtn) {
+            closeSavingsMenuBtn.onclick = () => {
+                const savingsModal = document.getElementById('savings-modal');
+                if (savingsModal) {
+                    savingsModal.classList.add('hidden');
+                    savingsModal.classList.remove('flex');
+                }
+            };
+        }
+
+        // 8. Confirm deduction button
+        const confirmDeductionBtn = document.getElementById('confirm-deduction-btn');
+        if (confirmDeductionBtn) {
+            confirmDeductionBtn.onclick = () => {
+                confirmDeduction();
+            };
+        }
+
+        // 9. Reset savings button
+        const resetSavingsBtn = document.getElementById('reset-savings-btn');
+        if (resetSavingsBtn) {
+            resetSavingsBtn.onclick = () => {
+                resetSavings();
+            };
+        }
+
+        // 8. Audit leaks button
+        const auditLeaksBtn = document.getElementById('audit-leaks-btn');
+        if (auditLeaksBtn) {
+            auditLeaksBtn.onclick = () => {
+                const leakScannerModal = document.getElementById('leak-scanner-modal');
+                if (leakScannerModal) {
+                    leakScannerModal.classList.remove('hidden');
+                    leakScannerModal.classList.add('flex');
+                }
+            };
+        }
+
+        // 9. Close leak scanner
+        const closeLeakScannerBtn = document.getElementById('close-leak-scanner-btn');
+        if (closeLeakScannerBtn) {
+            closeLeakScannerBtn.onclick = () => {
+                const leakScannerModal = document.getElementById('leak-scanner-modal');
+                if (leakScannerModal) {
+                    leakScannerModal.classList.add('hidden');
+                    leakScannerModal.classList.remove('flex');
+                }
+            };
+        }
+
+        // 10. Wishlist buttons
+        const addToWishlistBtn = document.getElementById('add-to-wishlist-btn');
+        if (addToWishlistBtn) {
+            addToWishlistBtn.onclick = () => {
+                addToWishlist();
+            };
+        }
+
+        const clearExpiredWishlistBtn = document.getElementById('clear-expired-wishlist-btn');
+        if (clearExpiredWishlistBtn) {
+            clearExpiredWishlistBtn.onclick = () => {
+                clearExpiredWishlist();
+            };
+        }
+
+        // Start countdown interval
+        startCountdownInterval();
+
+        // 11. Wall of shame buttons
+        const addToWallOfShameBtn = document.getElementById('add-to-wall-of-shame-btn');
+        if (addToWallOfShameBtn) {
+            addToWallOfShameBtn.onclick = () => {
+                addToWallOfShame();
+            };
+        }
+
+        const clearWallOfShameBtn = document.getElementById('clear-wall-of-shame-btn');
+        if (clearWallOfShameBtn) {
+            clearWallOfShameBtn.onclick = () => {
+                if (confirm('Are you sure you want to clear all confessions? This cannot be undone.')) {
+                    clearAllConfessions();
+                }
+            };
+        }
+
+        // 12. Social card buttons
+        const generateSocialCardBtn = document.getElementById('generate-social-card-btn');
+        if (generateSocialCardBtn) {
+            generateSocialCardBtn.onclick = () => {
+                const socialCard = document.getElementById('social-card');
+                const cardProduct = document.getElementById('card-product');
+                const cardPrice = document.getElementById('card-price');
+                const cardVerdict = document.getElementById('card-verdict');
+                const cardLabor = document.getElementById('card-labor');
+                const cardInvestment = document.getElementById('card-investment');
+                
+                // Read from verdictData state with fallbacks to Step 1 inputs
+                const productName = verdictData.productName || document.getElementById('product-name')?.value?.trim() || 'Your Product';
+                const priceValue = verdictData.price || parseFloat(document.getElementById('price')?.value) || 0;
+                const laborHours = verdictData.laborHours || (priceValue / (verdictData.wage || 25));
+                const investmentValue = verdictData.investmentValue || (priceValue * Math.pow(1.07, 10));
+                const verdictStatus = verdictData.verdict || 'PENDING';
+                
+                // Format values
+                const formattedPrice = `$${priceValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                const formattedHours = laborHours.toLocaleString('en-US', { maximumFractionDigits: 0 });
+                const formattedGrowth = investmentValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                
+                // Update card content
+                if (cardProduct) cardProduct.textContent = productName;
+                if (cardPrice) cardPrice.textContent = formattedPrice;
+                if (cardLabor) cardLabor.textContent = formattedHours;
+                if (cardInvestment) cardInvestment.textContent = formattedGrowth;
+                
+                // Set verdict badge with proper styling
+                if (cardVerdict) {
+                    cardVerdict.textContent = verdictStatus;
+                    if (verdictStatus === 'APPROVED') {
+                        cardVerdict.className = 'px-3 py-1 rounded-full text-sm font-bold uppercase bg-green-500 text-white';
+                    } else if (verdictStatus === 'PROBATION') {
+                        cardVerdict.className = 'px-3 py-1 rounded-full text-sm font-bold uppercase bg-yellow-500 text-white';
+                    } else {
+                        cardVerdict.className = 'px-3 py-1 rounded-full text-sm font-bold uppercase bg-red-500 text-white';
+                    }
+                }
+                
+                // Show the card canvas
+                if (socialCard) {
+                    socialCard.classList.remove('hidden');
+                }
+            };
+        }
+
+        // 13. Growth Year Timeframe Buttons
+        const growthYearBtns = document.querySelectorAll('.growth-year-btn');
+        const customYearsInput = document.getElementById('custom-years');
+        
+        growthYearBtns.forEach(btn => {
+            btn.onclick = () => {
+                const years = parseInt(btn.dataset.years);
+                
+                // Remove active styling from all buttons
+                growthYearBtns.forEach(b => {
+                    b.classList.remove('bg-green-500/30', 'border', 'border-green-500/50');
+                    b.classList.add('bg-white/10', 'hover:bg-white/20');
+                });
+                
+                // Add active styling to clicked button
+                btn.classList.remove('bg-white/10', 'hover:bg-white/20');
+                btn.classList.add('bg-green-500/30', 'border', 'border-green-500/50');
+                
+                // Update selected years
+                selectedGrowthYears = years;
+                
+                // Hide custom input
+                if (customYearsInput) {
+                    customYearsInput.classList.add('hidden');
+                }
+                
+                // Recalculate growth display
+                updateGrowthDisplay();
+            };
+        });
+        
+        // Custom years input handler
+        if (customYearsInput) {
+            customYearsInput.classList.add('hidden'); // Hide by default
+            customYearsInput.onchange = () => {
+                const customYears = parseInt(customYearsInput.value);
+                if (customYears && customYears >= 1 && customYears <= 50) {
+                    // Remove active styling from all buttons
+                    growthYearBtns.forEach(b => {
+                        b.classList.remove('bg-green-500/30', 'border', 'border-green-500/50');
+                        b.classList.add('bg-white/10', 'hover:bg-white/20');
+                    });
+                    
+                    // Update selected years
+                    selectedGrowthYears = customYears;
+                    
+                    // Recalculate growth display
+                    updateGrowthDisplay();
+                }
+            };
+        }
+
+        // 14. Bargain Engine
+        const findBargainsBtn = document.getElementById('find-bargains-btn');
+        if (findBargainsBtn) {
+            findBargainsBtn.onclick = (e) => {
+                e.preventDefault();
+                const productInput = document.getElementById('bargain-search-input');
+                const resultsContainer = document.getElementById('bargain-results-container');
+                const query = productInput.value.trim();
+
+                if (!query) {
+                    resultsContainer.innerHTML = '<p class="text-red-500 text-center py-4 font-medium">Please enter a product name to search for bargains.</p>';
+                    return;
+                }
+
+                // Show loading spinner
+                resultsContainer.innerHTML = `
+                  <div class="flex flex-col items-center justify-center py-12">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 dark:border-indigo-400 mb-4"></div>
+                    <p class="text-gray-500 dark:text-gray-400">Searching live market prices...</p>
+                  </div>
+                `;
+
+                const encodedQuery = encodeURIComponent(query);
+                const queryLower = query.toLowerCase();
+
+                // API Configuration - Replace with your actual API key
+                const RAPIDAPI_KEY = 'e6567dc690mshaf55ce501ad17c2p1a3315jsna4bdd70be55e'; // Get from https://rapidapi.com/
+                const AMAZON_HOST = 'real-time-amazon-data.p.rapidapi.com';
+                const EBAY_HOST = 'ebay-data2.p.rapidapi.com';
+                const ALIBABA_HOST = 'alibaba-api2.p.rapidapi.com';
+                const EBAY_API_KEY = '475491b95bmsh9224fa9920e0142p197c95jsn46959d02bb3b'; // eBay-specific API key
+                const ALIBABA_API_KEY = '475491b95bmsh9224fa9920e0142p197c95jsn46959d02bb3b'; // Alibaba-specific API key
+                const AMAZON_AFFILIATE_TAG = 'bargainengine-20'; // Amazon Associates tracking tag
+
+                // Amazon Affiliate URL Helper Functions
+                const getAmazonSearchUrl = (query) => {
+                    return `https://www.amazon.com/s?k=${encodeURIComponent(query)}&tag=${AMAZON_AFFILIATE_TAG}`;
+                };
+
+                const getAmazonProductUrl = (asin) => {
+                    return `https://www.amazon.com/dp/${asin}?tag=${AMAZON_AFFILIATE_TAG}`;
+                };
+
+                const attachAmazonAffiliateTag = (url) => {
+                    if (!url || !url.includes('amazon.com')) return url;
+                    try {
+                        const urlObj = new URL(url);
+                        urlObj.searchParams.set('tag', AMAZON_AFFILIATE_TAG);
+                        return urlObj.toString();
+                    } catch (e) {
+                        return url;
+                    }
+                };
+
+                // Async function to fetch live Amazon deals
+                async function fetchAmazonDeals(searchQuery) {
+                    if (!RAPIDAPI_KEY || RAPIDAPI_KEY === 'YOUR_RAPIDAPI_KEY_HERE') return null;
+
+                    try {
+                        const url = `https://${AMAZON_HOST}/search?query=${encodeURIComponent(searchQuery)}&page=1&country=US`;
+                        
+                        const response = await fetch(url, {
+                            method: 'GET',
+                            headers: {
+                                'x-rapidapi-key': RAPIDAPI_KEY,
+                                'x-rapidapi-host': AMAZON_HOST
+                            }
+                        });
+
+                        if (!response.ok) {
+                            console.error('Amazon API request failed:', response.status, response.statusText);
+                            console.error('Amazon Error Response:', await response.text());
+                            return null;
+                        }
+
+                        const data = await response.json();
+                        console.log('Amazon API Response:', data);
+                        console.log('Amazon Response Structure:', JSON.stringify(data, null, 2));
+                        
+                        // Flexible response normalization - check common JSON paths
+                        const products = data?.data?.products || data?.products || data?.results || [];
+                        console.log('Amazon Parsed Products:', products);
+                        if (products.length > 0) {
+                            console.log('First Amazon Product:', JSON.stringify(products[0], null, 2));
+                        }
+                        
+                        return products.map(p => ({...p, platform: 'Amazon'}));
+                    } catch (error) {
+                        console.error('Error fetching Amazon deals:', error);
+                        return null;
+                    }
+                }
+
+                // Async function to fetch live eBay deals
+                async function fetchEbayDeals(searchQuery) {
+                    if (!RAPIDAPI_KEY || RAPIDAPI_KEY === 'YOUR_RAPIDAPI_KEY_HERE') return null;
+
+                    try {
+                        const url = `https://${EBAY_HOST}/v1/ebay/search?domain=ebay.com&page=1&sold=false&limit=20&q=${encodeURIComponent(searchQuery)}`;
+                        
+                        const response = await fetch(url, {
+                            method: 'GET',
+                            headers: {
+                                'x-rapidapi-key': RAPIDAPI_KEY,
+                                'x-rapidapi-host': EBAY_HOST
+                            }
+                        });
+
+                        if (!response.ok) {
+                            console.error('eBay API request failed:', response.status, response.statusText);
+                            console.error('eBay Error Response:', await response.text());
+                            return null;
+                        }
+
+                        const data = await response.json();
+                        console.log('eBay Raw Response:', data);
+                        console.log('eBay Response Structure:', JSON.stringify(data, null, 2));
+                        
+                        // Flexible response normalization - check common JSON paths
+                        const products = data?.itemSummaries || data?.items || data?.result || data?.data?.products || data?.products || [];
+                        console.log('eBay Parsed Products:', products);
+                        if (products.length > 0) {
+                            console.log('First eBay Product:', JSON.stringify(products[0], null, 2));
+                        }
+                        
+                        return products.map(p => ({...p, platform: 'eBay'}));
+                    } catch (error) {
+                        console.error('Error fetching eBay deals:', error);
+                        return null;
+                    }
+                }
+
+                // Async function to fetch live Alibaba deals
+                async function fetchAlibabaDeals(searchQuery) {
+                    if (!RAPIDAPI_KEY || RAPIDAPI_KEY === 'YOUR_RAPIDAPI_KEY_HERE') return null;
+
+                    try {
+                        const url = `https://${ALIBABA_HOST}/alibaba/search?keyword=${encodeURIComponent(searchQuery)}`;
+                        
+                        const response = await fetch(url, {
+                            method: 'GET',
+                            headers: {
+                                'x-rapidapi-key': RAPIDAPI_KEY,
+                                'x-rapidapi-host': ALIBABA_HOST
+                            }
+                        });
+
+                        if (!response.ok) {
+                            console.error('Alibaba API request failed:', response.status, response.statusText);
+                            console.error('Alibaba Error Response:', await response.text());
+                            return null;
+                        }
+
+                        const data = await response.json();
+                        console.log('Alibaba Raw Response:', data);
+                        console.log('Alibaba Response Structure:', JSON.stringify(data, null, 2));
+                        
+                        // Flexible response normalization - check common JSON paths
+                        const products = data?.result?.items || data?.data?.products || data?.data || data?.products || data?.items || [];
+                        console.log('Alibaba Parsed Products:', products);
+                        if (products.length > 0) {
+                            console.log('First Alibaba Product:', JSON.stringify(products[0], null, 2));
+                        }
+                        
+                        return products.map(p => ({...p, platform: 'Alibaba'}));
+                    } catch (error) {
+                        console.error('Error fetching Alibaba deals:', error);
+                        return null;
+                    }
+                }
+
+                // Main function to fetch from all platforms using Promise.allSettled
+                async function fetchBargainDeals(searchQuery) {
+                    // Fetch from all platforms in parallel using Promise.allSettled
+                    const results = await Promise.allSettled([
+                        fetchAmazonDeals(searchQuery),
+                        fetchEbayDeals(searchQuery),
+                        fetchAlibabaDeals(searchQuery)
+                    ]);
+
+                    // Extract successful results
+                    const allProducts = [];
+                    results.forEach((result, index) => {
+                        if (result.status === 'fulfilled' && result.value) {
+                            allProducts.push(...result.value);
+                        } else if (result.status === 'rejected') {
+                            console.error(`Platform ${index} failed:`, result.reason);
+                        }
+                    });
+
+                    return allProducts.length > 0 ? allProducts : null;
+                }
+
+                // Expanded Category Price Database with Current Market Prices (2024)
+                const PRICE_DATABASE = {
+                    // Office Supplies
+                    pen: 2.99, "ballpoint pen": 1.99, "gel pen": 3.99, "fountain pen": 15.99, "pack of pens": 8.99,
+                    "notebook": 5.99, "spiral notebook": 3.99, "journal": 12.99, "planner": 15.99,
+                    "stapler": 7.99, "paper clips": 2.99, "scissors": 8.99, "tape dispenser": 5.99,
+                    
+                    // Household Items
+                    pillow: 16.99, "memory foam pillow": 29.99, "bed pillow": 14.99, "throw pillow": 12.99,
+                    "bed sheets": 39.99, "comforter": 59.99, "blanket": 34.99, "mattress topper": 49.99,
+                    "coffee maker": 79.99, "blender": 49.99, "toaster": 29.99, "microwave": 89.99,
+                    
+                    // Supercars & Automobiles (2024 MSRP)
+                    bugatti: 3900000, "bugatti chiron": 3900000, "bugatti divo": 5800000,
+                    lamborghini: 260000, "lamborghini huracan": 261000, "lamborghini aventador": 550000, "lamborghini urus": 230000,
+                    ferrari: 300000, "ferrari 488": 280000, "ferrari sf90": 625000, "ferrari 296": 322000,
+                    mclaren: 240000, "mclaren 720s": 310000, "mclaren artura": 233000,
+                    porsche: 130000, "porsche 911": 115000, "porsche taycan": 90000, "porsche cayenne": 77000,
+                    "rolls royce": 340000, "rolls royce phantom": 450000, "rolls royce cullinan": 340000,
+                    bentley: 220000, "bentley continental": 225000, "bentley flying spur": 240000,
+                    "aston martin": 160000, "aston martin db11": 215000,
+                    tesla: 45000, "tesla model 3": 39000, "tesla model y": 45000, "tesla model s": 75000, "tesla model x": 88000, "tesla cybertruck": 61000,
+                    car: 35000, truck: 45000, motorcycle: 12000, "harley davidson": 18000,
+
+                    // Tech & Gadgets (Current Retail Prices)
+                    "iphone 15": 799, "iphone 15 pro": 999, "iphone 15 pro max": 1199, "iphone 14": 699, "iphone 13": 599,
+                    "iphone 16": 799, "iphone 16 pro": 999, "iphone 16 pro max": 1199,
+                    "samsung galaxy s24": 799, "samsung galaxy s24 ultra": 1299,
+                    macbook: 1299, "macbook air": 1099, "macbook pro": 1599, "macbook pro 14": 1999, "macbook pro 16": 2499,
+                    ipad: 600, "ipad pro": 999, "ipad air": 599, "ipad mini": 499,
+                    ps5: 499, "playstation 5": 499, "ps5 digital": 449,
+                    xbox: 499, "xbox series x": 499, "xbox series s": 299,
+                    laptop: 850, "dell xps": 1200, "hp spectre": 1400, "lenovo thinkpad": 1100,
+                    tv: 650, "samsung tv": 800, "lg oled": 1200, "sony bravia": 900,
+                    camera: 900, "canon eos": 1200, "sony alpha": 1500, "nikon z": 1300,
+                    airpods: 179, "airpods pro": 249, "airpods max": 549,
+                    "nintendo switch": 299, "steam deck": 399,
+
+                    // Real Estate & High Luxury (Average Market Values)
+                    house: 450000, apartment: 280000, condo: 350000,
+                    yacht: 2500000, "luxury yacht": 5000000,
+                    rolex: 14000, "rolex submariner": 10000, "rolex daytona": 35000, "rolex datejust": 12000,
+                    diamond: 8000, "1 carat diamond": 5000, "2 carat diamond": 12000,
+                    "louis vuitton": 2000, "gucci": 1500, "prada": 1800, "chanel": 3500,
+
+                    // General Items (Current Retail)
+                    shoes: 120, "nike shoes": 130, "jordan shoes": 180, "adidas shoes": 110,
+                    watch: 250, "apple watch": 399, "samsung watch": 299, "garmin watch": 350,
+                    jacket: 85, "north face jacket": 150, "canada goose": 450, "patagonia": 200,
+                    bag: 150, "backpack": 80, "handbag": 200, "suitcase": 120,
+                    headphones: 180, "sony headphones": 350, "bose headphones": 299, "sennheiser": 250,
+                    furniture: 500, sofa: 800, "dining table": 400, bed: 600,
+                    "gaming pc": 1500, "gaming laptop": 1200
+                };
+
+                // Enhanced Base Price Resolver Function
+                function resolveBasePrice(searchQuery) {
+                    const lowerQuery = searchQuery.toLowerCase();
+
+                    // 1. Check for explicit numbers in input (e.g., "Bugatti 3000000" or "House 500k")
+                    const numberMatch = lowerQuery.match(/(\d+\.?\d*)(k|m|b)?/);
+                    if (numberMatch) {
+                        let value = parseFloat(numberMatch[1]);
+                        const suffix = numberMatch[2];
+                        if (suffix === 'k') value *= 1000;
+                        if (suffix === 'm') value *= 1000000;
+                        if (suffix === 'b') value *= 1000000000;
+                        if (value >= 10) return value; // Only use if it's a reasonable price
+                    }
+
+                    // 2. Check for exact keyword matches in PRICE_DATABASE
+                    // Sort keywords by length (descending) to match longer, more specific terms first
+                    const sortedKeywords = Object.keys(PRICE_DATABASE).sort((a, b) => b.length - a.length);
+                    
+                    for (const keyword of sortedKeywords) {
+                        if (lowerQuery.includes(keyword)) {
+                            return PRICE_DATABASE[keyword];
+                        }
+                    }
+
+                    // 3. Broad term fallbacks
+                    if (lowerQuery.includes('car') || lowerQuery.includes('auto') || lowerQuery.includes('vehicle')) {
+                        return 35000;
+                    }
+                    if (lowerQuery.includes('phone') || lowerQuery.includes('smartphone')) {
+                        return 800;
+                    }
+                    if (lowerQuery.includes('computer') || lowerQuery.includes('pc')) {
+                        return 1000;
+                    }
+                    if (lowerQuery.includes('furniture') || lowerQuery.includes('sofa') || lowerQuery.includes('table')) {
+                        return 500;
+                    }
+
+                    // 4. Default to realistic consumer range ($100 - $800)
+                    return Math.floor(Math.random() * (800 - 100 + 1)) + 100;
+                }
+
+                // Main async function to handle bargain search
+                async function performBargainSearch() {
+                    // Try to fetch live data from API
+                    const liveProducts = await fetchBargainDeals(query);
+
+                    // Format using Intl.NumberFormat for proper currency formatting
+                    const currencyFormatter = new Intl.NumberFormat('en-US', {
+                        style: 'currency',
+                        currency: 'USD',
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    });
+
+                    const formatPrice = (price) => currencyFormatter.format(price);
+                    const formatSavings = (savings, discount) => `SAVE ${formatPrice(savings)} · ${discount}% OFF`;
+
+                    // If live API data is available, render real products
+                    if (liveProducts && liveProducts.length > 0) {
+                        renderLiveProducts(liveProducts, formatPrice, formatSavings, query, encodedQuery);
+                        return;
+                    }
+
+                    // Fallback: Use estimated prices when API is not configured
+                    const priceInput = document.getElementById('price');
+                    let basePrice = parseFloat(priceInput?.value) || 0;
+                    
+                    if (basePrice === 0) {
+                        basePrice = resolveBasePrice(query);
+                    }
+
+                    // Calculate deal prices
+                    const alibabaPrice = basePrice * 0.65;
+                    const alibabaSavings = basePrice - alibabaPrice;
+                    const alibabaDiscount = 35;
+
+                    const ebayPrice = basePrice * 0.80;
+                    const ebaySavings = basePrice - ebayPrice;
+                    const ebayDiscount = 20;
+
+                    const amazonPrice = basePrice * 0.88;
+                    const amazonSavings = basePrice - amazonPrice;
+                    const amazonDiscount = 12;
+
+                    renderEstimatedDeals(basePrice, alibabaPrice, alibabaSavings, alibabaDiscount, 
+                                       ebayPrice, ebaySavings, ebayDiscount, 
+                                       amazonPrice, amazonSavings, amazonDiscount, 
+                                       formatPrice, formatSavings, query, encodedQuery);
+                }
+
+                // Render live product data from API with 3 distinct platform cards
+                function renderLiveProducts(products, formatPrice, formatSavings, query, encodedQuery) {
+                    // Group products by platform
+                    const platformGroups = {
+                        'Amazon': products.filter(p => p.platform === 'Amazon'),
+                        'eBay': products.filter(p => p.platform === 'eBay'),
+                        'Alibaba': products.filter(p => p.platform === 'Alibaba')
+                    };
+                    
+                    // Get best product from each platform (or null if none)
+                    const amazonProduct = platformGroups.Amazon[0] || null;
+                    const ebayProduct = platformGroups.eBay[0] || null;
+                    const alibabaProduct = platformGroups.Alibaba[0] || null;
+
+                    // Helper function to parse price from product
+                    const parsePrice = (product) => {
+                        if (!product) return null;
+                        // Try multiple possible price field names
+                        let priceValue = product.product_price || product.price || product.product_price_value || 
+                                        product.current_price || product.list_price || product.original_price ||
+                                        product.sale_price || product.discounted_price || product.buy_price ||
+                                        product.wholesale_price || product.min_price || product.max_price ||
+                                        product.price?.value || product.currentPrice || product.fobPrice ||
+                                        product.promotionPrice || 0;
+                        
+                        // Handle nested price objects
+                        if (product.price_info?.current_price) priceValue = product.price_info.current_price;
+                        if (product.price_info?.list_price) priceValue = product.price_info.list_price;
+                        if (product.pricing?.price) priceValue = product.pricing.price;
+                        
+                        // Clean price string if it contains currency symbols, commas, or other formatting
+                        if (typeof priceValue === 'string') {
+                            priceValue = priceValue.replace(/[$,£€¥₹]/g, '').trim();
+                            // Handle ranges like "$10 - $20" - take the lower value
+                            if (priceValue.includes('-')) {
+                                priceValue = priceValue.split('-')[0].trim();
+                            }
+                        }
+                        
+                        const price = parseFloat(priceValue) || 0;
+                        console.log('Price parsing:', { raw: product.product_price, cleaned: priceValue, parsed: price });
+                        return price > 0 ? price : null;
+                    };
+
+                    // Platform-specific data extraction
+                    const extractProductData = (product, platform, fallbackPrice) => {
+                        const price = parsePrice(product) || fallbackPrice;
+                        let title, image, url, seller;
+
+                        if (platform === 'Amazon') {
+                            title = product?.product_title || product?.title || product?.product_name || `${query} — Amazon Deal`;
+                            image = product?.product_photo || product?.image || product?.product_image || product?.thumbnail || product?.main_image || '';
+                            url = attachAmazonAffiliateTag(product?.product_url || product?.product_link || product?.url) || getAmazonSearchUrl(query);
+                            seller = product?.seller_name || product?.seller || product?.brand || product?.store_name || 'Amazon';
+                        } else if (platform === 'eBay') {
+                            title = product?.title || product?.name || product?.item_title || product?.subject || `${query} — eBay Deal`;
+                            image = product?.image?.imageUrl || product?.imageUrl || product?.image || product?.thumbnail || product?.pictureUrl || product?.picUrl || product?.pic || '';
+                            url = product?.itemWebUrl || product?.viewItemURL || product?.item_url || product?.product_url || `https://www.ebay.com/sch/i.html?_nkw=${encodedQuery}`;
+                            seller = product?.seller_name || product?.seller || product?.brand || product?.store_name || 'eBay';
+                        } else if (platform === 'Alibaba') {
+                            title = product?.subject || product?.title || product?.name || product?.product_name || `${query} — Alibaba Deal`;
+                            image = product?.imageUrl || product?.pic_url || product?.image || product?.picUrl || product?.imgPath || product?.product_photo || product?.thumbnail || '';
+                            url = product?.detailUrl || product?.productUrl || product?.product_url || product?.url || `https://www.alibaba.com/trade/search?SearchText=${encodedQuery}`;
+                            seller = product?.seller_name || product?.seller || product?.brand || product?.store_name || 'Alibaba Direct Supplier';
+                        }
+                        
+                        return { price, title, image, url, seller };
+                    };
+
+                    // Calculate fallback prices with platform-specific calibration
+                    const priceInput = document.getElementById('price');
+                    let basePrice = parseFloat(priceInput?.value) || 0;
+                    if (basePrice === 0) basePrice = resolveBasePrice(query);
+                    
+                    // Platform-specific discount calibration (more realistic)
+                    // Amazon: Usually 5-15% off for warehouse deals
+                    // eBay: Varies widely, 10-40% off depending on condition
+                    // Alibaba: Wholesale prices, typically 30-60% off retail
+                    const amazonData = extractProductData(amazonProduct, 'Amazon', basePrice * 0.92); // 8% off
+                    const ebayData = extractProductData(ebayProduct, 'eBay', basePrice * 0.75); // 25% off (average for refurbished)
+                    const alibabaData = extractProductData(alibabaProduct, 'Alibaba', basePrice * 0.55); // 45% off (wholesale)
+
+                    // Calculate savings for display
+                    const calculateSavings = (original, discounted) => {
+                        const savings = original - discounted;
+                        const discount = Math.round((savings / original) * 100);
+                        return { savings, discount };
+                    };
+
+                    const amazonSavings = calculateSavings(basePrice, amazonData.price);
+                    const ebaySavings = calculateSavings(basePrice, ebayData.price);
+                    const alibabaSavings = calculateSavings(basePrice, alibabaData.price);
+
+                    resultsContainer.innerHTML = `
+                      <div class="space-y-4">
+                        <p class="text-sm text-green-600 dark:text-green-400 text-center mb-4">
+                          ✅ Live market prices from Amazon, eBay, and Alibaba
+                          <span class="block text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            ${amazonProduct ? '🟢 Amazon: Live' : '🔴 Amazon: Offline'} | 
+                            ${ebayProduct ? '🟢 eBay: Live' : '🟡 eBay: Direct Link'} | 
+                            ${alibabaProduct ? '🟢 Alibaba: Live' : '🟡 Alibaba: Estimated'}
+                          </span>
+                        </p>
+                        
+                        <!-- Amazon Card -->
+                        <div class="p-5 rounded-2xl border bg-white/80 backdrop-blur-sm border-slate-300 text-slate-900 dark:bg-slate-900/80 dark:border-slate-700 dark:text-slate-100 shadow-lg hover:shadow-xl transition-all">
+                          <div class="flex items-center gap-3 mb-4">
+                            <img src="https://www.google.com/s2/favicons?domain=amazon.com&sz=128" alt="Amazon" class="w-10 h-10 rounded-lg" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23f97316%22><text y=%2220%22 font-size=%2220%22>📦</text></svg>'">
+                            <div>
+                              <h4 class="font-bold text-lg">Amazon Deal</h4>
+                              <span class="inline-block px-2 py-0.5 bg-slate-700 text-white text-xs font-bold rounded-full mt-1">${formatSavings(amazonSavings.savings, amazonSavings.discount)}</span>
+                            </div>
+                          </div>
+                          <div class="flex gap-4 mb-4">
+                            ${amazonData.image ? `<img src="${amazonData.image}" alt="${amazonData.title}" class="product-thumb w-20 h-20 rounded-lg object-cover" onerror="this.style.display='none'">` : ''}
+                            <div class="flex-1">
+                              <h4 class="font-bold text-md mb-2">${amazonData.title.substring(0, 70)}${amazonData.title.length > 70 ? '...' : ''}</h4>
+                              <span class="text-sm text-gray-500 dark:text-gray-400">Sold by: ${amazonData.seller}</span>
+                            </div>
+                          </div>
+                          <div class="flex items-baseline gap-3 mb-4">
+                            <span class="text-lg line-through opacity-50">${formatPrice(basePrice)}</span>
+                            <span class="text-2xl font-black text-emerald-600 dark:text-emerald-400">${formatPrice(amazonData.price)}</span>
+                          </div>
+                          <a href="${amazonData.url}" target="_blank" rel="noopener sponsored" class="px-6 py-3 bg-slate-900 hover:bg-black text-white font-bold rounded-xl transition-all shadow-md hover:-translate-y-0.5 flex items-center gap-2 w-fit">
+                            View Deal →
+                          </a>
+                        </div>
+
+                        <!-- eBay Card -->
+                        <div class="p-5 rounded-2xl border bg-white/80 backdrop-blur-sm border-blue-200 text-slate-900 dark:bg-slate-900/80 dark:border-blue-700 dark:text-slate-100 shadow-lg hover:shadow-xl transition-all">
+                          <div class="flex items-center gap-3 mb-4">
+                            <img src="https://www.google.com/s2/favicons?domain=ebay.com&sz=128" alt="eBay" class="w-10 h-10 rounded-lg" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%233b82f6%22><text y=%2220%22 font-size=%2220%22>🏷️</text></svg>'">
+                            <div>
+                              <h4 class="font-bold text-lg">eBay Refurbished / Direct</h4>
+                              <span class="inline-block px-2 py-0.5 bg-blue-500 text-white text-xs font-bold rounded-full mt-1">${ebayProduct ? 'Live Listing' : 'Browse eBay'}</span>
+                            </div>
+                          </div>
+                          <div class="flex gap-4 mb-4">
+                            ${ebayData.image ? `<img src="${ebayData.image}" alt="${ebayData.title}" class="product-thumb w-20 h-20 rounded-lg object-cover" onerror="this.style.display='none'">` : `<img src="${amazonData.image || 'https://via.placeholder.com/80x80/3b82f6/ffffff?text=eBay'}" alt="${ebayData.title}" class="product-thumb w-20 h-20 rounded-lg object-cover" onerror="this.src='https://via.placeholder.com/80x80/3b82f6/ffffff?text=eBay'">`}
+                            <div class="flex-1">
+                              <h4 class="font-bold text-md mb-2">${ebayData.title.substring(0, 70)}${ebayData.title.length > 70 ? '...' : ''}</h4>
+                              <span class="text-sm text-gray-500 dark:text-gray-400">Sold by: ${ebayData.seller}</span>
+                            </div>
+                          </div>
+                          <div class="flex items-baseline gap-3 mb-4">
+                            <span class="text-lg line-through opacity-50">${formatPrice(basePrice)}</span>
+                            <span class="text-2xl font-black text-indigo-600 dark:text-indigo-400">${ebayProduct ? 'See Price on eBay' : 'Click for Live Price'}</span>
+                          </div>
+                          <a href="${ebayData.url}" target="_blank" rel="noopener noreferrer" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-md hover:-translate-y-0.5 flex items-center gap-2 w-fit">
+                            View on eBay →
+                          </a>
+                        </div>
+
+                        <!-- Alibaba Card -->
+                        <div class="p-5 rounded-2xl border bg-white/80 backdrop-blur-sm border-amber-200 text-slate-900 dark:bg-slate-900/80 dark:border-amber-700 dark:text-slate-100 shadow-lg hover:shadow-xl transition-all">
+                          <div class="flex items-center gap-3 mb-4">
+                            <img src="https://www.google.com/s2/favicons?domain=alibaba.com&sz=128" alt="Alibaba" class="w-10 h-10 rounded-lg" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23f59e0b%22><text y=%2220%22 font-size=%2220%22>🏭</text></svg>'">
+                            <div>
+                              <h4 class="font-bold text-lg">Alibaba Wholesale</h4>
+                              <span class="inline-block px-2 py-0.5 bg-amber-500 text-white text-xs font-bold rounded-full mt-1">${alibabaProduct ? 'Live Listing' : 'Browse Wholesale Listings'}</span>
+                            </div>
+                          </div>
+                          <div class="flex gap-4 mb-4">
+                            ${alibabaData.image ? `<img src="${alibabaData.image}" alt="${alibabaData.title}" class="product-thumb w-20 h-20 rounded-lg object-cover" onerror="this.style.display='none'">` : `<img src="${amazonData.image || 'https://via.placeholder.com/80x80/f59e0b/ffffff?text=Alibaba'}" alt="${alibabaData.title}" class="product-thumb w-20 h-20 rounded-lg object-cover" onerror="this.src='https://via.placeholder.com/80x80/f59e0b/ffffff?text=Alibaba'">`}
+                            <div class="flex-1">
+                              <h4 class="font-bold text-md mb-2">${alibabaData.title.substring(0, 70)}${alibabaData.title.length > 70 ? '...' : ''}</h4>
+                              <span class="text-sm text-gray-500 dark:text-gray-400">Sold by: ${alibabaData.seller}</span>
+                            </div>
+                          </div>
+                          <div class="flex items-baseline gap-3 mb-4">
+                            <span class="text-lg line-through opacity-50">${formatPrice(basePrice)}</span>
+                            <span class="text-2xl font-black text-green-600 dark:text-green-400">${alibabaProduct ? 'See Wholesale Price' : 'Check Price on Alibaba'}</span>
+                          </div>
+                          <a href="${alibabaData.url}" target="_blank" rel="noopener noreferrer" class="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl transition-all shadow-md hover:-translate-y-0.5 flex items-center gap-2 w-fit">
+                            View on Alibaba →
+                          </a>
+                        </div>
+                      </div>
+                    `;
+                }
+
+                // Render estimated deals (fallback)
+                function renderEstimatedDeals(basePrice, alibabaPrice, alibabaSavings, alibabaDiscount, 
+                                             ebayPrice, ebaySavings, ebayDiscount, 
+                                             amazonPrice, amazonSavings, amazonDiscount, 
+                                             formatPrice, formatSavings, query, encodedQuery) {
+                    resultsContainer.innerHTML = `
+                      <div class="space-y-4">
+                        <p class="text-sm text-amber-600 dark:text-amber-400 text-center mb-4">
+                          ⚠️ Using estimated prices. Connect a live shopping API key for real-time store prices.
+                        </p>
+                        <!-- Alibaba Wholesale Card -->
+                        <div class="p-5 rounded-2xl border bg-white/80 backdrop-blur-sm border-amber-200 text-slate-900 dark:bg-slate-900/80 dark:border-amber-700 dark:text-slate-100 shadow-lg hover:shadow-xl transition-all">
+                          <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center gap-3">
+                              <img src="https://www.google.com/s2/favicons?domain=alibaba.com&sz=128" alt="Alibaba" class="w-10 h-10 rounded-lg" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23f59e0b%22><text y=%2220%22 font-size=%2220%22>🏭</text></svg>'">
+                              <div>
+                                <h4 class="font-bold text-lg">Alibaba Direct Supplier — ${query} Deal</h4>
+                                <span class="inline-block px-2 py-0.5 bg-amber-500 text-white text-xs font-bold rounded-full mt-1">${formatSavings(alibabaSavings, alibabaDiscount)}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="flex items-baseline gap-3 mb-3">
+                            <span class="text-lg line-through opacity-50">${formatPrice(basePrice)}</span>
+                            <span class="text-2xl font-black text-green-600 dark:text-green-400">${formatPrice(alibabaPrice)}</span>
+                          </div>
+                          <div class="flex items-center gap-2 mb-4">
+                            <span class="text-xs bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 px-2 py-0.5 rounded-full font-medium">Verified Suppliers</span>
+                            <span class="text-xs bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 px-2 py-0.5 rounded-full font-medium">Buyer Protection</span>
+                          </div>
+                          <a href="https://www.alibaba.com/trade/search?SearchText=${encodedQuery}" target="_blank" rel="noopener noreferrer" class="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl transition-all shadow-md hover:-translate-y-0.5 flex items-center gap-2 w-fit">
+                            View Deal →
+                          </a>
+                        </div>
+
+                        <!-- eBay Refurbished Card -->
+                        <div class="p-5 rounded-2xl border bg-white/80 backdrop-blur-sm border-blue-200 text-slate-900 dark:bg-slate-900/80 dark:border-blue-700 dark:text-slate-100 shadow-lg hover:shadow-xl transition-all">
+                          <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center gap-3">
+                              <img src="https://www.google.com/s2/favicons?domain=ebay.com&sz=128" alt="eBay" class="w-10 h-10 rounded-lg" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%233b82f6%22><text y=%2220%22 font-size=%2220%22>🏷️</text></svg>'">
+                              <div>
+                                <h4 class="font-bold text-lg">eBay Refurbished — ${query} Deal</h4>
+                                <span class="inline-block px-2 py-0.5 bg-blue-500 text-white text-xs font-bold rounded-full mt-1">${formatSavings(ebaySavings, ebayDiscount)}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="flex items-baseline gap-3 mb-3">
+                            <span class="text-lg line-through opacity-50">${formatPrice(basePrice)}</span>
+                            <span class="text-2xl font-black text-indigo-600 dark:text-indigo-400">${formatPrice(ebayPrice)}</span>
+                          </div>
+                          <div class="flex items-center gap-2 mb-4">
+                            <span class="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 px-2 py-0.5 rounded-full font-medium">Certified Refurbished</span>
+                            <span class="text-xs bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400 px-2 py-0.5 rounded-full font-medium">Money Back Guarantee</span>
+                          </div>
+                          <a href="https://www.ebay.com/sch/i.html?_nkw=${encodedQuery}&_sacat=0&LH_ItemCondition=1500|2000|2500|3000" target="_blank" rel="noopener noreferrer" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-md hover:-translate-y-0.5 flex items-center gap-2 w-fit">
+                            View Deal →
+                          </a>
+                        </div>
+
+                        <!-- Amazon Warehouse Card -->
+                        <div class="p-5 rounded-2xl border bg-white/80 backdrop-blur-sm border-slate-300 text-slate-900 dark:bg-slate-900/80 dark:border-slate-700 dark:text-slate-100 shadow-lg hover:shadow-xl transition-all">
+                          <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center gap-3">
+                              <img src="https://www.google.com/s2/favicons?domain=amazon.com&sz=128" alt="Amazon" class="w-10 h-10 rounded-lg" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23f97316%22><text y=%2220%22 font-size=%2220%22>📦</text></svg>'">
+                              <div>
+                                <h4 class="font-bold text-lg">Amazon Warehouse — ${query} Deal</h4>
+                                <span class="inline-block px-2 py-0.5 bg-slate-700 text-white text-xs font-bold rounded-full mt-1">${formatSavings(amazonSavings, amazonDiscount)}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="flex items-baseline gap-3 mb-3">
+                            <span class="text-lg line-through opacity-50">${formatPrice(basePrice)}</span>
+                            <span class="text-2xl font-black text-emerald-600 dark:text-emerald-400">${formatPrice(amazonPrice)}</span>
+                          </div>
+                          <div class="flex items-center gap-2 mb-4">
+                            <span class="text-xs bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300 px-2 py-0.5 rounded-full font-medium">Verified Return</span>
+                            <span class="text-xs bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400 px-2 py-0.5 rounded-full font-medium">Amazon Prime Eligible</span>
+                          </div>
+                          <a href="${getAmazonSearchUrl(query)}&i=warehouse-deals" target="_blank" rel="noopener sponsored" class="px-6 py-3 bg-slate-900 hover:bg-black text-white font-bold rounded-xl transition-all shadow-md hover:-translate-y-0.5 flex items-center gap-2 w-fit">
+                            View Deal →
+                          </a>
+                        </div>
+                      </div>
+                    `;
+                }
+
+                // Execute the search
+                performBargainSearch();
+            };
+        }
+    });
+
+    // Immediate initialization for fast render
+    if (document.readyState === 'interactive' || document.readyState === 'complete') {
+      initTheme();
+      initTTS();
+      updateSavingsDisplay();
+      loadWishlist();
+      startCountdownInterval();
+      loadWallOfShame();
+    }
+  </script>
+</body>
+</html>
+</body>
+</html>
