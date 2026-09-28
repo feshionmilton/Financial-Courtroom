@@ -629,13 +629,102 @@
     </div>
   </main>
 
+  <!-- Cookie Consent Banner -->
+  <div id="cookie-banner" class="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-700 shadow-lg p-4">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <p class="text-xs text-gray-600 dark:text-gray-400 text-center sm:text-left">
+        We use cookies and third-party tracking (such as Amazon, eBay, and Admitad affiliate tags) to optimize your search experience and track referral purchases. By continuing to use this site, you agree to our privacy practices.
+      </p>
+      <button onclick="acceptCookies()" class="px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-bold rounded-lg hover:opacity-90 transition-opacity whitespace-nowrap">
+        Accept
+      </button>
+    </div>
+  </div>
+
   <!-- Footer -->
   <footer class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-12">
+    <div class="flex flex-wrap justify-center gap-4 mb-4">
+      <button onclick="openModal('privacy-modal')" class="text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 underline">Privacy Policy</button>
+      <button onclick="openModal('terms-modal')" class="text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 underline">Terms of Service</button>
+      <button onclick="openModal('contact-modal')" class="text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 underline">About & Contact</button>
+    </div>
     <p class="text-center text-xs text-gray-500 leading-relaxed">
-      Financial Courtroom is a financial tools app. Some links on this site are affiliate links, meaning we may earn a small commission if you sign up or purchase through them at no extra cost to you.
+      Financial Courtroom is an independent product discovery and price comparison tool. Product prices and availability are accurate as of the date/time indicated and are subject to change.
       <span class="block mt-2">As an Amazon Associate, I earn from qualifying purchases.</span>
+      <span class="block mt-2">As an eBay Partner and affiliate marketer, I may be compensated if you make a purchase through links on this site.</span>
     </p>
   </footer>
+
+  <!-- Privacy Policy Modal -->
+  <div id="privacy-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-2xl font-bold dark:text-white text-gray-900">Privacy Policy</h3>
+        <button onclick="closeModal('privacy-modal')" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 text-2xl">&times;</button>
+      </div>
+      <div class="space-y-4 text-sm dark:text-gray-300 text-gray-700 leading-relaxed">
+        <p><strong>Last Updated: September 2026</strong></p>
+        <p>Financial Courtroom is committed to protecting your privacy. This policy explains how we collect, use, and disclose information about you.</p>
+        <h4 class="font-bold dark:text-white text-gray-900 mt-4">Third-Party Cookies and Tracking</h4>
+        <p>We use third-party vendors, including Amazon, eBay, Alibaba, and Admitad, to place cookies on your browser to measure referral conversions and site activity. These cookies may track your browsing behavior across websites to optimize your search experience and track affiliate purchases.</p>
+        <h4 class="font-bold dark:text-white text-gray-900 mt-4">Data Collection</h4>
+        <p>We collect information you provide directly, such as product searches and savings data. We may also collect anonymous usage data through cookies and similar technologies.</p>
+        <h4 class="font-bold dark:text-white text-gray-900 mt-4">Data Usage</h4>
+        <p>Your data is used to provide personalized search results, track savings, and improve our services. We do not sell your personal information to third parties.</p>
+        <h4 class="font-bold dark:text-white text-gray-900 mt-4">Your Rights</h4>
+        <p>You have the right to access, correct, or delete your personal data. You can also opt out of cookies through your browser settings.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Terms of Service Modal -->
+  <div id="terms-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-2xl font-bold dark:text-white text-gray-900">Terms of Service</h3>
+        <button onclick="closeModal('terms-modal')" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 text-2xl">&times;</button>
+      </div>
+      <div class="space-y-4 text-sm dark:text-gray-300 text-gray-700 leading-relaxed">
+        <p><strong>Last Updated: September 2026</strong></p>
+        <p>By using Financial Courtroom, you agree to these terms of service.</p>
+        <h4 class="font-bold dark:text-white text-gray-900 mt-4">Product Information</h4>
+        <p>Product prices and availability are accurate as of the date/time indicated and are subject to change. Financial Courtroom is an independent product discovery and price comparison tool. We do not guarantee the accuracy of pricing or availability information displayed on merchant sites.</p>
+        <h4 class="font-bold dark:text-white text-gray-900 mt-4">Affiliate Relationships</h4>
+        <p>Financial Courtroom participates in affiliate programs with Amazon, eBay, Alibaba, and Admitad. We may earn commissions when you make purchases through our links at no additional cost to you.</p>
+        <h4 class="font-bold dark:text-white text-gray-900 mt-4">Disclaimer</h4>
+        <p>Financial Courtroom provides information for educational purposes only. We are not financial advisors. All financial decisions should be made after careful consideration and, where appropriate, consultation with a professional.</p>
+        <h4 class="font-bold dark:text-white text-gray-900 mt-4">Limitation of Liability</h4>
+        <p>Financial Courtroom shall not be liable for any indirect, incidental, special, or consequential damages arising from the use of our services.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contact Modal -->
+  <div id="contact-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 max-w-md w-full mx-4">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-2xl font-bold dark:text-white text-gray-900">About & Contact</h3>
+        <button onclick="closeModal('contact-modal')" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 text-2xl">&times;</button>
+      </div>
+      <div class="space-y-4 text-sm dark:text-gray-300 text-gray-700 leading-relaxed">
+        <p><strong>About Financial Courtroom</strong></p>
+        <p>Financial Courtroom is an independent product discovery and price comparison tool designed to help you make informed purchasing decisions. We compare prices across multiple platforms to help you find the bestdeals.</p>
+        <h4 class="font-bold dark:text-white text-gray-900 mt-4">Contact Us</h4>
+        <p>Have questions or feedback? We'd love to hear from you.</p>
+        <div class="mt-4">
+          <label class="block text-sm font-medium dark:text-gray-300 text-gray-700 mb-2">Email</label>
+          <input type="email" class="w-full px-4 py-3 rounded-lg dark:bg-white/10 dark:border-white/20 bg-white border-gray-300 dark:text-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="your@email.com">
+        </div>
+        <div class="mt-4">
+          <label class="block text-sm font-medium dark:text-gray-300 text-gray-700 mb-2">Message</label>
+          <textarea class="w-full px-4 py-3 rounded-lg dark:bg-white/10 dark:border-white/20 bg-white border-gray-300 dark:text-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500" rows="4" placeholder="Your message..."></textarea>
+        </div>
+        <button class="w-full mt-4 px-4 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-lg hover:opacity-90 transition-opacity">
+          Send Message
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- Savings Menu Modal -->
   <div id="savings-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm">
@@ -2375,12 +2464,45 @@
       renderConfessions();
     }
 
+    function acceptCookies() {
+      localStorage.setItem('cookieConsent', 'true');
+      const cookieBanner = document.getElementById('cookie-banner');
+      if (cookieBanner) {
+        cookieBanner.style.display = 'none';
+      }
+    }
+
+    function openModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+    }
+
+    function closeModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    }
+
 
     // ==================================================
     // CONSOLIDATED INITIALIZATION
     // ==================================================
     document.addEventListener('DOMContentLoaded', () => {
         console.log("DOM loaded. Attaching button event listeners...");
+
+        // Cookie Consent
+        const cookieBanner = document.getElementById('cookie-banner');
+        if (cookieBanner) {
+            // Check if user has already accepted cookies
+            if (localStorage.getItem('cookieConsent') === 'true') {
+                cookieBanner.style.display = 'none';
+            }
+        }
 
         // 1. Theme Toggle
         const themeBtn = document.getElementById('theme-toggle-btn');
