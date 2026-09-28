@@ -2780,6 +2780,7 @@
                 const EBAY_API_KEY = '475491b95bmsh9224fa9920e0142p197c95jsn46959d02bb3b'; // eBay-specific API key
                 const ALIBABA_API_KEY = '475491b95bmsh9224fa9920e0142p197c95jsn46959d02bb3b'; // Alibaba-specific API key
                 const AMAZON_AFFILIATE_TAG = 'bargainengine-20'; // Amazon Associates tracking tag
+                const ALIBABA_AFFILIATE_ID = '1793906810'; // Alibaba Affiliate tracking ID
 
                 // Amazon Affiliate URL Helper Functions
                 const getAmazonSearchUrl = (query) => {
@@ -2799,6 +2800,12 @@
                     } catch (e) {
                         return url;
                     }
+                };
+
+                // Alibaba Affiliate URL Helper Function
+                const getAlibabaAffiliateUrl = (query) => {
+                    const encodedQuery = encodeURIComponent(query || 'deals');
+                    return `https://www.alibaba.com/trade/search?SearchText=${encodedQuery}&join_id=${ALIBABA_AFFILIATE_ID}`;
                 };
 
                 // Async function to fetch live Amazon deals
@@ -3182,7 +3189,7 @@
                         } else if (platform === 'Alibaba') {
                             title = product?.subject || product?.title || product?.name || product?.product_name || `${query} — Alibaba Deal`;
                             image = product?.imageUrl || product?.pic_url || product?.image || product?.picUrl || product?.imgPath || product?.product_photo || product?.thumbnail || '';
-                            url = product?.detailUrl || product?.productUrl || product?.product_url || product?.url || `https://www.alibaba.com/trade/search?SearchText=${encodedQuery}`;
+                            url = product?.detailUrl || product?.productUrl || product?.product_url || product?.url || getAlibabaAffiliateUrl(query);
                             seller = product?.seller_name || product?.seller || product?.brand || product?.store_name || 'Alibaba Direct Supplier';
                         }
                         
@@ -3334,7 +3341,7 @@
                             <span class="text-xs bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 px-2 py-0.5 rounded-full font-medium">Verified Suppliers</span>
                             <span class="text-xs bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 px-2 py-0.5 rounded-full font-medium">Buyer Protection</span>
                           </div>
-                          <a href="https://www.alibaba.com/trade/search?SearchText=${encodedQuery}" target="_blank" rel="noopener noreferrer" class="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl transition-all shadow-md hover:-translate-y-0.5 flex items-center gap-2 w-fit">
+                          <a href="${getAlibabaAffiliateUrl(query)}" target="_blank" rel="noopener noreferrer" class="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl transition-all shadow-md hover:-translate-y-0.5 flex items-center gap-2 w-fit">
                             View Deal →
                           </a>
                         </div>
