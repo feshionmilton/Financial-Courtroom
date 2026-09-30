@@ -971,6 +971,12 @@
           </div>
 
           <div class="text-center">
+            <button type="button" id="resend-confirmation-btn" class="text-sm dark:text-gray-400 text-gray-600 hover:text-purple-400 transition-colors">
+              Resend confirmation email
+            </button>
+          </div>
+
+          <div class="text-center">
             <button type="button" id="back-to-signin-from-confirmation" class="text-sm dark:text-gray-400 text-gray-600 hover:text-purple-400 transition-colors">
               Back to Sign In
             </button>
@@ -1237,7 +1243,24 @@
           closeAuthModal();
         }
       } catch (error) {
-        messageDiv.textContent = error.message || 'Authentication failed. Please try again.';
+        // Handle specific error cases
+        let errorMessage = error.message || 'Authentication failed. Please try again.';
+        
+        // Check for unconfirmed user error
+        if (error.message && error.message.includes('Email not confirmed')) {
+          errorMessage = 'Email not confirmed. Please check your inbox or resend the confirmation email.';
+          pendingEmail = email;
+          // Add resend button option
+          messageDiv.innerHTML = `
+            <p class="mb-3">${errorMessage}</p>
+            <button type="button" onclick="resendConfirmationEmail()" class="text-purple-400 hover:text-purple-300 underline">
+              Resend confirmation email
+            </button>
+          `;
+        } else {
+          messageDiv.textContent = errorMessage;
+        }
+        
         messageDiv.className = 'mb-4 rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-xs text-red-400 text-center';
         messageDiv.classList.remove('hidden');
       } finally {
@@ -1251,6 +1274,59 @@
     async function handleSignOut() {
       if (supabaseClient) {
         await supabaseClient.auth.signOut();
+      }
+    }
+
+    // Resend confirmation email for signup
+    async function resendConfirmationEmail() {
+      const messageDiv = document.getElementById('auth-message');
+      const emailInput = document.getElementById('auth-email');
+      const email = emailInput ? emailInput.value.trim() : pendingEmail;
+
+      if (!email) {
+        messageDiv.textContent = 'Please enter your email address.';
+        messageDiv.className = 'mb-4 rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-xs text-red-400 text-center';
+        messageDiv.classList.remove('hidden');
+        return;
+      }
+
+      if (!supabaseClient) {
+        messageDiv.textContent = 'Authentication service unavailable. Please try again later.';
+        messageDiv.className = 'mb-4 rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-xs text-red-400 text-center';
+        messageDiv.classList.remove('hidden');
+        return;
+      }
+
+      messageDiv.textContent = 'Sending confirmation email...';
+      messageDiv.className = 'mb-4 rounded-lg bg-blue-500/10 border border-blue-500/20 p-3 text-xs text-blue-400 text-center';
+      messageDiv.classList.remove('hidden');
+
+      try {
+        const { error } = await supabaseClient.auth.resend({
+          type: 'signup',
+          email: email,
+        });
+
+        if (error) throw error;
+
+        pendingEmail = email;
+        messageDiv.textContent = 'Confirmation email sent! Please check your inbox.';
+        messageDiv.className = 'mb-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-3 text-xs text-emerald-400 text-center';
+        
+        // Transition to email confirmation view
+        setTimeout(() => {
+          showAuthView('email-confirmation');
+        }, 1500);
+      } catch (error) {
+        let errorMessage = error.message || 'Failed to resend confirmation email. Please try again.';
+        
+        // Check for rate limit error
+        if (error.message && error.message.includes('rate limit')) {
+          errorMessage = 'Rate limit reached. Please wait 1 hour before requesting another email.';
+        }
+        
+        messageDiv.textContent = errorMessage;
+        messageDiv.className = 'mb-4 rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-xs text-red-400 text-center';
       }
     }
 
@@ -2877,6 +2953,15 @@
             backToSigninFromConfirmation.onclick = (e) => {
                 e.preventDefault();
                 showAuthView('main');
+            };
+        }
+
+        // Resend confirmation email button
+        const resendConfirmationBtn = document.getElementById('resend-confirmation-btn');
+        if (resendConfirmationBtn) {
+            resendConfirmationBtn.onclick = (e) => {
+                e.preventDefault();
+                resendConfirmationEmail();
             };
         }
 

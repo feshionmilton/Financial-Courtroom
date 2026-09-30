@@ -116,6 +116,9 @@
           const { data, error } = await supabase.auth.signUp({
             email,
             password,
+            options: {
+              emailRedirectTo: window.location.origin,
+            },
           });
           if (error) throw error;
           // Auto-create profile after signup
@@ -131,7 +134,24 @@
         }
         closeAuthModal();
       } catch (error) {
-        errorDiv.textContent = error.message;
+        // Handle specific error cases
+        let errorMessage = error.message || 'Authentication failed. Please try again.';
+        
+        // Check for unconfirmed user error
+        if (error.message && error.message.includes('Email not confirmed')) {
+          errorMessage = 'Email not confirmed. Please check your inbox or resend the confirmation email.';
+          pendingEmail = email;
+          // Add resend button option
+          errorDiv.innerHTML = `
+            <p class="mb-3">${errorMessage}</p>
+            <button type="button" onclick="resendConfirmationEmail()" class="text-purple-400 hover:text-purple-300 underline">
+              Resend confirmation email
+            </button>
+          `;
+        } else {
+          errorDiv.textContent = errorMessage;
+        }
+        
         errorDiv.classList.remove('hidden');
       }
     }
@@ -139,6 +159,49 @@
     async function handleSignOut() {
       if (supabase) {
         await supabase.auth.signOut();
+      }
+    }
+
+    // Resend confirmation email for signup
+    async function resendConfirmationEmail() {
+      const errorDiv = document.getElementById('auth-error');
+      const emailInput = document.getElementById('auth-email');
+      const email = emailInput ? emailInput.value.trim() : pendingEmail;
+
+      if (!email) {
+        errorDiv.textContent = 'Please enter your email address.';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+
+      if (!supabase) {
+        errorDiv.textContent = 'Authentication service unavailable. Please try again later.';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+
+      errorDiv.textContent = 'Sending confirmation email...';
+      errorDiv.classList.remove('hidden');
+
+      try {
+        const { error } = await supabase.auth.resend({
+          type: 'signup',
+          email: email,
+        });
+
+        if (error) throw error;
+
+        pendingEmail = email;
+        errorDiv.textContent = 'Confirmation email sent! Please check your inbox.';
+      } catch (error) {
+        let errorMessage = error.message || 'Failed to resend confirmation email. Please try again.';
+        
+        // Check for rate limit error
+        if (error.message && error.message.includes('rate limit')) {
+          errorMessage = 'Rate limit reached. Please wait 1 hour before requesting another email.';
+        }
+        
+        errorDiv.textContent = errorMessage;
       }
     }
 
