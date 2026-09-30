@@ -949,42 +949,29 @@
         </div>
       </div>
 
-      <!-- OTP Verification View (Sign Up) -->
-      <div id="auth-view-otp" class="auth-view hidden">
+      <!-- Email Confirmation View (Sign Up) -->
+      <div id="auth-view-email-confirmation" class="auth-view hidden">
         <div class="text-center mb-6">
           <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
             <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
             </svg>
           </div>
-          <h3 class="text-2xl font-bold mb-2 text-gradient">Verify Your Email</h3>
-          <p class="dark:text-gray-400 text-gray-600 text-sm">Enter the 6-digit code sent to your email</p>
+          <h3 class="text-2xl font-bold mb-2 text-gradient">Check Your Email</h3>
+          <p class="dark:text-gray-400 text-gray-600 text-sm">We've sent a confirmation link to your email inbox</p>
         </div>
 
-        <div id="otp-message" class="hidden mb-4 rounded-lg p-3 text-xs text-center"></div>
+        <div id="email-confirmation-message" class="hidden mb-4 rounded-lg p-3 text-xs text-center"></div>
 
         <div class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium dark:text-gray-300 text-gray-700 mb-2">6-Digit Code</label>
-            <input type="text" id="otp-code" maxlength="6" class="w-full px-4 py-3 rounded-lg dark:bg-white/10 dark:border-white/20 bg-white border-gray-300 dark:text-white text-gray-900 dark:placeholder-gray-400 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 text-center text-2xl tracking-widest" placeholder="123456">
-          </div>
-
-          <button id="verify-otp-btn" class="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-3 rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50">
-            <span>Verify Email</span>
-            <svg id="otp-loading-spinner" class="hidden animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-          </button>
-
-          <div class="text-center">
-            <button type="button" id="resend-otp-btn" class="text-sm dark:text-gray-400 text-gray-600 hover:text-purple-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-              Resend Code
-            </button>
+          <div class="bg-blue-50/50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+            <p class="text-sm dark:text-blue-300 text-blue-700 text-center">
+              Click the link in the email to verify your account and complete sign up.
+            </p>
           </div>
 
           <div class="text-center">
-            <button type="button" id="back-to-signin-from-otp" class="text-sm dark:text-gray-400 text-gray-600 hover:text-purple-400 transition-colors">
+            <button type="button" id="back-to-signin-from-confirmation" class="text-sm dark:text-gray-400 text-gray-600 hover:text-purple-400 transition-colors">
               Back to Sign In
             </button>
           </div>
@@ -1027,7 +1014,7 @@
         </div>
       </div>
 
-      <!-- Reset Password with OTP View -->
+      <!-- Reset Password View -->
       <div id="auth-view-reset-password" class="auth-view hidden">
         <div class="text-center mb-6">
           <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center">
@@ -1035,45 +1022,17 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
           </div>
-          <h3 class="text-2xl font-bold mb-2 text-gradient">Set New Password</h3>
-          <p class="dark:text-gray-400 text-gray-600 text-sm">Enter the reset code and your new password</p>
+          <h3 class="text-2xl font-bold mb-2 text-gradient">Check Your Email</h3>
+          <p class="dark:text-gray-400 text-gray-600 text-sm">We've sent a password reset link to your email inbox</p>
         </div>
 
         <div id="reset-password-message" class="hidden mb-4 rounded-lg p-3 text-xs text-center"></div>
 
         <div class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium dark:text-gray-300 text-gray-700 mb-2">6-Digit Reset Code</label>
-            <input type="text" id="reset-otp-code" maxlength="6" class="w-full px-4 py-3 rounded-lg dark:bg-white/10 dark:border-white/20 bg-white border-gray-300 dark:text-white text-gray-900 dark:placeholder-gray-400 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 text-center text-2xl tracking-widest" placeholder="123456">
-          </div>
-          <div>
-            <label class="block text-sm font-medium dark:text-gray-300 text-gray-700 mb-2">New Password</label>
-            <div class="relative w-full">
-              <input type="password" id="new-password" class="w-full px-4 py-3 pr-10 rounded-lg dark:bg-white/10 dark:border-white/20 bg-white border-gray-300 dark:text-white text-gray-900 dark:placeholder-gray-400 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="••••••••">
-              <button type="button" id="toggle-new-password-visibility" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
-                <svg id="new-eye-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                </svg>
-                <svg id="new-eye-off-icon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          <button id="confirm-reset-btn" class="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold py-3 rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50">
-            <span>Update Password</span>
-            <svg id="confirm-reset-loading-spinner" class="hidden animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-          </button>
-
-          <div class="text-center">
-            <button type="button" id="resend-reset-btn" class="text-sm dark:text-gray-400 text-gray-600 hover:text-purple-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-              Resend Code
-            </button>
+          <div class="bg-blue-50/50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+            <p class="text-sm dark:text-blue-300 text-blue-700 text-center">
+              Click the link in the email to set your new password.
+            </p>
           </div>
 
           <div class="text-center">
@@ -1142,9 +1101,6 @@
     let currentUser = null;
     let isSignUpMode = false;
     let pendingEmail = '';
-    let otpTimerInterval = null;
-    let otpCountdown = 60;
-    let currentOtpType = ''; // 'signup' or 'recovery'
 
     // Auth Modal Functions
     function openAuthModal() {
@@ -1177,18 +1133,11 @@
         // Reset to sign in mode
         isSignUpMode = false;
         pendingEmail = '';
-        // Clear OTP timer
-        clearOtpTimer();
         showAuthView('main');
       }
     }
 
     function showAuthView(viewName) {
-      // Clear OTP timer when navigating away from OTP views
-      if (viewName !== 'otp' && viewName !== 'reset-password') {
-        clearOtpTimer();
-      }
-      
       // Hide all auth views
       document.querySelectorAll('.auth-view').forEach(view => {
         view.classList.add('hidden');
@@ -1199,45 +1148,6 @@
       if (targetView) {
         targetView.classList.remove('hidden');
       }
-
-      // Start countdown timer when entering OTP or reset password view
-      if (viewName === 'otp') {
-        currentOtpType = 'signup';
-        startOtpTimer('resend-otp-btn');
-      } else if (viewName === 'reset-password') {
-        currentOtpType = 'recovery';
-        startOtpTimer('resend-reset-btn');
-      }
-    }
-
-    function clearOtpTimer() {
-      if (otpTimerInterval) {
-        clearInterval(otpTimerInterval);
-        otpTimerInterval = null;
-      }
-      otpCountdown = 60;
-    }
-
-    function startOtpTimer(buttonId) {
-      clearOtpTimer();
-      const resendBtn = document.getElementById(buttonId);
-      if (!resendBtn) return;
-
-      otpCountdown = 60;
-      resendBtn.disabled = true;
-      resendBtn.textContent = `Resend code in ${otpCountdown}s`;
-
-      otpTimerInterval = setInterval(() => {
-        otpCountdown--;
-        if (otpCountdown <= 0) {
-          clearInterval(otpTimerInterval);
-          otpTimerInterval = null;
-          resendBtn.disabled = false;
-          resendBtn.textContent = 'Resend Code';
-        } else {
-          resendBtn.textContent = `Resend code in ${otpCountdown}s`;
-        }
-      }, 1000);
     }
 
     function toggleAuthMode() {
@@ -1300,6 +1210,9 @@
           const { data, error } = await supabaseClient.auth.signUp({
             email,
             password,
+            options: {
+              emailRedirectTo: window.location.origin,
+            },
           });
           
           if (error) throw error;
@@ -1309,9 +1222,9 @@
             await createProfile(data.user.id);
           }
 
-          // Transition to OTP verification view
+          // Transition to email confirmation view
           pendingEmail = email;
-          showAuthView('otp');
+          showAuthView('email-confirmation');
         } else {
           // Sign In
           const { data, error } = await supabaseClient.auth.signInWithPassword({
@@ -1341,94 +1254,6 @@
       }
     }
 
-    // OTP Verification for Sign Up
-    async function verifyOtp() {
-      const otpCode = document.getElementById('otp-code').value.trim();
-      const messageDiv = document.getElementById('otp-message');
-      const verifyBtn = document.getElementById('verify-otp-btn');
-      const loadingSpinner = document.getElementById('otp-loading-spinner');
-
-      if (!otpCode || otpCode.length !== 6) {
-        messageDiv.textContent = 'Please enter the 6-digit code';
-        messageDiv.className = 'mb-4 rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-xs text-red-400 text-center';
-        messageDiv.classList.remove('hidden');
-        return;
-      }
-
-      if (!supabaseClient || !pendingEmail) {
-        messageDiv.textContent = 'Session expired. Please try signing up again.';
-        messageDiv.className = 'mb-4 rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-xs text-red-400 text-center';
-        messageDiv.classList.remove('hidden');
-        return;
-      }
-
-      verifyBtn.disabled = true;
-      loadingSpinner.classList.remove('hidden');
-      messageDiv.classList.add('hidden');
-
-      try {
-        const { data, error } = await supabaseClient.auth.verifyOtp({
-          email: pendingEmail,
-          token: otpCode,
-          type: 'signup',
-        });
-
-        if (error) throw error;
-
-        messageDiv.textContent = 'Email verified successfully!';
-        messageDiv.className = 'mb-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-3 text-xs text-emerald-400 text-center';
-        messageDiv.classList.remove('hidden');
-
-        setTimeout(() => {
-          closeAuthModal();
-        }, 1500);
-      } catch (error) {
-        messageDiv.textContent = error.message || 'Invalid code. Please try again.';
-        messageDiv.className = 'mb-4 rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-xs text-red-400 text-center';
-        messageDiv.classList.remove('hidden');
-      } finally {
-        verifyBtn.disabled = false;
-        loadingSpinner.classList.add('hidden');
-      }
-    }
-
-    // Resend OTP for Sign Up
-    async function resendOtp() {
-      const messageDiv = document.getElementById('otp-message');
-      const resendBtn = document.getElementById('resend-otp-btn');
-
-      if (!supabaseClient || !pendingEmail) {
-        messageDiv.textContent = 'Session expired. Please try signing up again.';
-        messageDiv.className = 'mb-4 rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-xs text-red-400 text-center';
-        messageDiv.classList.remove('hidden');
-        return;
-      }
-
-      resendBtn.disabled = true;
-      messageDiv.classList.add('hidden');
-
-      try {
-        const { error } = await supabaseClient.auth.resend({
-          type: 'signup',
-          email: pendingEmail,
-        });
-
-        if (error) throw error;
-
-        messageDiv.textContent = 'A new 6-digit code has been sent!';
-        messageDiv.className = 'mb-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-3 text-xs text-emerald-400 text-center';
-        messageDiv.classList.remove('hidden');
-
-        // Restart countdown timer
-        startOtpTimer('resend-otp-btn');
-      } catch (error) {
-        messageDiv.textContent = error.message || 'Failed to resend code. Please try again.';
-        messageDiv.className = 'mb-4 rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-xs text-red-400 text-center';
-        messageDiv.classList.remove('hidden');
-        resendBtn.disabled = false;
-      }
-    }
-
     // Forgot Password - Send Reset Email
     async function sendResetEmail() {
       const email = document.getElementById('forgot-email').value.trim();
@@ -1455,7 +1280,9 @@
       messageDiv.classList.add('hidden');
 
       try {
-        const { error } = await supabaseClient.auth.resetPasswordForEmail(email);
+        const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+          redirectTo: window.location.origin,
+        });
 
         if (error) throw error;
 
@@ -1468,110 +1295,6 @@
       } finally {
         sendBtn.disabled = false;
         loadingSpinner.classList.add('hidden');
-      }
-    }
-
-    // Reset Password with OTP
-    async function resetPassword() {
-      const otpCode = document.getElementById('reset-otp-code').value.trim();
-      const newPassword = document.getElementById('new-password').value;
-      const messageDiv = document.getElementById('reset-password-message');
-      const confirmBtn = document.getElementById('confirm-reset-btn');
-      const loadingSpinner = document.getElementById('confirm-reset-loading-spinner');
-
-      if (!otpCode || otpCode.length !== 6) {
-        messageDiv.textContent = 'Please enter the 6-digit reset code';
-        messageDiv.className = 'mb-4 rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-xs text-red-400 text-center';
-        messageDiv.classList.remove('hidden');
-        return;
-      }
-
-      if (!newPassword || newPassword.length < 6) {
-        messageDiv.textContent = 'Password must be at least 6 characters';
-        messageDiv.className = 'mb-4 rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-xs text-red-400 text-center';
-        messageDiv.classList.remove('hidden');
-        return;
-      }
-
-      if (!supabaseClient || !pendingEmail) {
-        messageDiv.textContent = 'Session expired. Please try again.';
-        messageDiv.className = 'mb-4 rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-xs text-red-400 text-center';
-        messageDiv.classList.remove('hidden');
-        return;
-      }
-
-      confirmBtn.disabled = true;
-      loadingSpinner.classList.remove('hidden');
-      messageDiv.classList.add('hidden');
-
-      try {
-        // Verify OTP first
-        const { error: otpError } = await supabaseClient.auth.verifyOtp({
-          email: pendingEmail,
-          token: otpCode,
-          type: 'recovery',
-        });
-
-        if (otpError) throw otpError;
-
-        // Update password
-        const { error: updateError } = await supabaseClient.auth.updateUser({
-          password: newPassword,
-        });
-
-        if (updateError) throw updateError;
-
-        messageDiv.textContent = 'Password updated successfully! You can now sign in.';
-        messageDiv.className = 'mb-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-3 text-xs text-emerald-400 text-center';
-        messageDiv.classList.remove('hidden');
-
-        setTimeout(() => {
-          showAuthView('main');
-        }, 2000);
-      } catch (error) {
-        messageDiv.textContent = error.message || 'Failed to reset password. Please try again.';
-        messageDiv.className = 'mb-4 rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-xs text-red-400 text-center';
-        messageDiv.classList.remove('hidden');
-      } finally {
-        confirmBtn.disabled = false;
-        loadingSpinner.classList.add('hidden');
-      }
-    }
-
-    // Resend OTP for Password Recovery
-    async function resendResetOtp() {
-      const messageDiv = document.getElementById('reset-password-message');
-      const resendBtn = document.getElementById('resend-reset-btn');
-
-      if (!supabaseClient || !pendingEmail) {
-        messageDiv.textContent = 'Session expired. Please try again.';
-        messageDiv.className = 'mb-4 rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-xs text-red-400 text-center';
-        messageDiv.classList.remove('hidden');
-        return;
-      }
-
-      resendBtn.disabled = true;
-      messageDiv.classList.add('hidden');
-
-      try {
-        const { error } = await supabaseClient.auth.resend({
-          type: 'recovery',
-          email: pendingEmail,
-        });
-
-        if (error) throw error;
-
-        messageDiv.textContent = 'A new 6-digit code has been sent!';
-        messageDiv.className = 'mb-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-3 text-xs text-emerald-400 text-center';
-        messageDiv.classList.remove('hidden');
-
-        // Restart countdown timer
-        startOtpTimer('resend-reset-btn');
-      } catch (error) {
-        messageDiv.textContent = error.message || 'Failed to resend code. Please try again.';
-        messageDiv.className = 'mb-4 rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-xs text-red-400 text-center';
-        messageDiv.classList.remove('hidden');
-        resendBtn.disabled = false;
       }
     }
 
@@ -3110,21 +2833,8 @@
             };
         }
 
-        // New password visibility toggle
-        const toggleNewPasswordBtn = document.getElementById('toggle-new-password-visibility');
-        const newPasswordInput = document.getElementById('new-password');
-        const newEyeIcon = document.getElementById('new-eye-icon');
-        const newEyeOffIcon = document.getElementById('new-eye-off-icon');
+        // New password visibility toggle (removed - no longer needed)
         
-        if (toggleNewPasswordBtn && newPasswordInput && newEyeIcon && newEyeOffIcon) {
-            toggleNewPasswordBtn.onclick = () => {
-                const isPassword = newPasswordInput.type === 'password';
-                newPasswordInput.type = isPassword ? 'text' : 'password';
-                newEyeIcon.classList.toggle('hidden');
-                newEyeOffIcon.classList.toggle('hidden');
-            };
-        }
-
         // Auth submit and toggle mode
         const authSubmitBtn = document.getElementById('auth-submit-btn');
         const authToggleModeBtn = document.getElementById('auth-toggle-mode');
@@ -3152,24 +2862,6 @@
             };
         }
 
-        // OTP verification button
-        const verifyOtpBtn = document.getElementById('verify-otp-btn');
-        if (verifyOtpBtn) {
-            verifyOtpBtn.onclick = (e) => {
-                e.preventDefault();
-                verifyOtp();
-            };
-        }
-
-        // Resend OTP button for signup
-        const resendOtpBtn = document.getElementById('resend-otp-btn');
-        if (resendOtpBtn) {
-            resendOtpBtn.onclick = (e) => {
-                e.preventDefault();
-                resendOtp();
-            };
-        }
-
         // Send reset email button
         const sendResetBtn = document.getElementById('send-reset-btn');
         if (sendResetBtn) {
@@ -3179,28 +2871,10 @@
             };
         }
 
-        // Confirm reset password button
-        const confirmResetBtn = document.getElementById('confirm-reset-btn');
-        if (confirmResetBtn) {
-            confirmResetBtn.onclick = (e) => {
-                e.preventDefault();
-                resetPassword();
-            };
-        }
-
-        // Resend OTP button for password recovery
-        const resendResetBtn = document.getElementById('resend-reset-btn');
-        if (resendResetBtn) {
-            resendResetBtn.onclick = (e) => {
-                e.preventDefault();
-                resendResetOtp();
-            };
-        }
-
         // Navigation buttons - Back to Sign In
-        const backToSigninFromOtp = document.getElementById('back-to-signin-from-otp');
-        if (backToSigninFromOtp) {
-            backToSigninFromOtp.onclick = (e) => {
+        const backToSigninFromConfirmation = document.getElementById('back-to-signin-from-confirmation');
+        if (backToSigninFromConfirmation) {
+            backToSigninFromConfirmation.onclick = (e) => {
                 e.preventDefault();
                 showAuthView('main');
             };
