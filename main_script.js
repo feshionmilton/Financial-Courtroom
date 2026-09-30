@@ -50,6 +50,10 @@
 
     let currentUser = null;
     let isSignUpMode = false;
+    let pendingEmail = '';
+    let otpTimerInterval = null;
+    let otpCountdown = 60;
+    let currentOtpType = ''; // 'signup' or 'recovery'
 
     // Auth Modal Functions
     function openAuthModal() {
@@ -73,7 +77,42 @@
         if (emailInput) emailInput.value = '';
         if (passwordInput) passwordInput.value = '';
         if (errorDiv) errorDiv.classList.add('hidden');
+        // Reset to sign in mode
+        isSignUpMode = false;
+        pendingEmail = '';
+        // Clear OTP timer
+        clearOtpTimer();
       }
+    }
+
+    function clearOtpTimer() {
+      if (otpTimerInterval) {
+        clearInterval(otpTimerInterval);
+        otpTimerInterval = null;
+      }
+      otpCountdown = 60;
+    }
+
+    function startOtpTimer(buttonId) {
+      clearOtpTimer();
+      const resendBtn = document.getElementById(buttonId);
+      if (!resendBtn) return;
+
+      otpCountdown = 60;
+      resendBtn.disabled = true;
+      resendBtn.textContent = `Resend code in ${otpCountdown}s`;
+
+      otpTimerInterval = setInterval(() => {
+        otpCountdown--;
+        if (otpCountdown <= 0) {
+          clearInterval(otpTimerInterval);
+          otpTimerInterval = null;
+          resendBtn.disabled = false;
+          resendBtn.textContent = 'Resend Code';
+        } else {
+          resendBtn.textContent = `Resend code in ${otpCountdown}s`;
+        }
+      }, 1000);
     }
 
     function toggleAuthMode() {
@@ -135,6 +174,80 @@
     async function handleSignOut() {
       if (supabase) {
         await supabase.auth.signOut();
+      }
+    }
+
+    // Resend OTP for Sign Up
+    async function resendOtp() {
+      const messageDiv = document.getElementById('otp-message');
+      const resendBtn = document.getElementById('resend-otp-btn');
+
+      if (!supabase || !pendingEmail) {
+        messageDiv.textContent = 'Session expired. Please try signing up again.';
+        messageDiv.className = 'mb-4 rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-xs text-red-400 text-center';
+        messageDiv.classList.remove('hidden');
+        return;
+      }
+
+      resendBtn.disabled = true;
+      messageDiv.classList.add('hidden');
+
+      try {
+        const { error } = await supabase.auth.resend({
+          type: 'signup',
+          email: pendingEmail,
+        });
+
+        if (error) throw error;
+
+        messageDiv.textContent = 'A new 6-digit code has been sent!';
+        messageDiv.className = 'mb-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-3 text-xs text-emerald-400 text-center';
+        messageDiv.classList.remove('hidden');
+
+        // Restart countdown timer
+        startOtpTimer('resend-otp-btn');
+      } catch (error) {
+        messageDiv.textContent = error.message || 'Failed to resend code. Please try again.';
+        messageDiv.className = 'mb-4 rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-xs text-red-400 text-center';
+        messageDiv.classList.remove('hidden');
+        resendBtn.disabled = false;
+      }
+    }
+
+    // Resend OTP for Password Recovery
+    async function resendResetOtp() {
+      const messageDiv = document.getElementById('reset-password-message');
+      const resendBtn = document.getElementById('resend-reset-btn');
+
+      if (!supabase || !pendingEmail) {
+        messageDiv.textContent = 'Session expired. Please try again.';
+        messageDiv.className = 'mb-4 rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-xs text-red-400 text-center';
+        messageDiv.classList.remove('hidden');
+        return;
+      }
+
+      resendBtn.disabled = true;
+      messageDiv.classList.add('hidden');
+
+      try {
+        const { error } = await supabase.auth.resend({
+          type: 'recovery',
+          email: pendingEmail,
+        });
+
+        if (error) throw error;
+
+        messageDiv.textContent = 'A new 6-digit code has been sent!';
+        messageDiv.className = 'mb-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-3 text-xs text-emerald-400 text-center';
+        messageDiv.classList.remove('hidden');
+
+        // Restart countdown timer
+        startOtpTimer('resend-reset-btn');
+      } catch (error) {
+        messageDiv.textContent = error.message || 'Failed to resend code. Please try again.';
+        messageDiv.className = 'mb-4 rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-xs text-red-400 text-center';
+        messageDiv.classList.remove('hidden');
+        resendBtn.disabled = false;
       }
     }
 

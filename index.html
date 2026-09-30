@@ -978,6 +978,12 @@
           </button>
 
           <div class="text-center">
+            <button type="button" id="resend-otp-btn" class="text-sm dark:text-gray-400 text-gray-600 hover:text-purple-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+              Resend Code
+            </button>
+          </div>
+
+          <div class="text-center">
             <button type="button" id="back-to-signin-from-otp" class="text-sm dark:text-gray-400 text-gray-600 hover:text-purple-400 transition-colors">
               Back to Sign In
             </button>
@@ -1065,6 +1071,12 @@
           </button>
 
           <div class="text-center">
+            <button type="button" id="resend-reset-btn" class="text-sm dark:text-gray-400 text-gray-600 hover:text-purple-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+              Resend Code
+            </button>
+          </div>
+
+          <div class="text-center">
             <button type="button" id="back-to-signin-from-reset" class="text-sm dark:text-gray-400 text-gray-600 hover:text-purple-400 transition-colors">
               Back to Sign In
             </button>
@@ -1130,6 +1142,9 @@
     let currentUser = null;
     let isSignUpMode = false;
     let pendingEmail = '';
+    let otpTimerInterval = null;
+    let otpCountdown = 60;
+    let currentOtpType = ''; // 'signup' or 'recovery'
 
     // Auth Modal Functions
     function openAuthModal() {
@@ -1162,11 +1177,18 @@
         // Reset to sign in mode
         isSignUpMode = false;
         pendingEmail = '';
+        // Clear OTP timer
+        clearOtpTimer();
         showAuthView('main');
       }
     }
 
     function showAuthView(viewName) {
+      // Clear OTP timer when navigating away from OTP views
+      if (viewName !== 'otp' && viewName !== 'reset-password') {
+        clearOtpTimer();
+      }
+      
       // Hide all auth views
       document.querySelectorAll('.auth-view').forEach(view => {
         view.classList.add('hidden');
@@ -1177,6 +1199,45 @@
       if (targetView) {
         targetView.classList.remove('hidden');
       }
+
+      // Start countdown timer when entering OTP or reset password view
+      if (viewName === 'otp') {
+        currentOtpType = 'signup';
+        startOtpTimer('resend-otp-btn');
+      } else if (viewName === 'reset-password') {
+        currentOtpType = 'recovery';
+        startOtpTimer('resend-reset-btn');
+      }
+    }
+
+    function clearOtpTimer() {
+      if (otpTimerInterval) {
+        clearInterval(otpTimerInterval);
+        otpTimerInterval = null;
+      }
+      otpCountdown = 60;
+    }
+
+    function startOtpTimer(buttonId) {
+      clearOtpTimer();
+      const resendBtn = document.getElementById(buttonId);
+      if (!resendBtn) return;
+
+      otpCountdown = 60;
+      resendBtn.disabled = true;
+      resendBtn.textContent = `Resend code in ${otpCountdown}s`;
+
+      otpTimerInterval = setInterval(() => {
+        otpCountdown--;
+        if (otpCountdown <= 0) {
+          clearInterval(otpTimerInterval);
+          otpTimerInterval = null;
+          resendBtn.disabled = false;
+          resendBtn.textContent = 'Resend Code';
+        } else {
+          resendBtn.textContent = `Resend code in ${otpCountdown}s`;
+        }
+      }, 1000);
     }
 
     function toggleAuthMode() {
@@ -1331,6 +1392,43 @@
       }
     }
 
+    // Resend OTP for Sign Up
+    async function resendOtp() {
+      const messageDiv = document.getElementById('otp-message');
+      const resendBtn = document.getElementById('resend-otp-btn');
+
+      if (!supabaseClient || !pendingEmail) {
+        messageDiv.textContent = 'Session expired. Please try signing up again.';
+        messageDiv.className = 'mb-4 rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-xs text-red-400 text-center';
+        messageDiv.classList.remove('hidden');
+        return;
+      }
+
+      resendBtn.disabled = true;
+      messageDiv.classList.add('hidden');
+
+      try {
+        const { error } = await supabaseClient.auth.resend({
+          type: 'signup',
+          email: pendingEmail,
+        });
+
+        if (error) throw error;
+
+        messageDiv.textContent = 'A new 6-digit code has been sent!';
+        messageDiv.className = 'mb-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-3 text-xs text-emerald-400 text-center';
+        messageDiv.classList.remove('hidden');
+
+        // Restart countdown timer
+        startOtpTimer('resend-otp-btn');
+      } catch (error) {
+        messageDiv.textContent = error.message || 'Failed to resend code. Please try again.';
+        messageDiv.className = 'mb-4 rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-xs text-red-400 text-center';
+        messageDiv.classList.remove('hidden');
+        resendBtn.disabled = false;
+      }
+    }
+
     // Forgot Password - Send Reset Email
     async function sendResetEmail() {
       const email = document.getElementById('forgot-email').value.trim();
@@ -1437,6 +1535,43 @@
       } finally {
         confirmBtn.disabled = false;
         loadingSpinner.classList.add('hidden');
+      }
+    }
+
+    // Resend OTP for Password Recovery
+    async function resendResetOtp() {
+      const messageDiv = document.getElementById('reset-password-message');
+      const resendBtn = document.getElementById('resend-reset-btn');
+
+      if (!supabaseClient || !pendingEmail) {
+        messageDiv.textContent = 'Session expired. Please try again.';
+        messageDiv.className = 'mb-4 rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-xs text-red-400 text-center';
+        messageDiv.classList.remove('hidden');
+        return;
+      }
+
+      resendBtn.disabled = true;
+      messageDiv.classList.add('hidden');
+
+      try {
+        const { error } = await supabaseClient.auth.resend({
+          type: 'recovery',
+          email: pendingEmail,
+        });
+
+        if (error) throw error;
+
+        messageDiv.textContent = 'A new 6-digit code has been sent!';
+        messageDiv.className = 'mb-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-3 text-xs text-emerald-400 text-center';
+        messageDiv.classList.remove('hidden');
+
+        // Restart countdown timer
+        startOtpTimer('resend-reset-btn');
+      } catch (error) {
+        messageDiv.textContent = error.message || 'Failed to resend code. Please try again.';
+        messageDiv.className = 'mb-4 rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-xs text-red-400 text-center';
+        messageDiv.classList.remove('hidden');
+        resendBtn.disabled = false;
       }
     }
 
@@ -3026,6 +3161,15 @@
             };
         }
 
+        // Resend OTP button for signup
+        const resendOtpBtn = document.getElementById('resend-otp-btn');
+        if (resendOtpBtn) {
+            resendOtpBtn.onclick = (e) => {
+                e.preventDefault();
+                resendOtp();
+            };
+        }
+
         // Send reset email button
         const sendResetBtn = document.getElementById('send-reset-btn');
         if (sendResetBtn) {
@@ -3041,6 +3185,15 @@
             confirmResetBtn.onclick = (e) => {
                 e.preventDefault();
                 resetPassword();
+            };
+        }
+
+        // Resend OTP button for password recovery
+        const resendResetBtn = document.getElementById('resend-reset-btn');
+        if (resendResetBtn) {
+            resendResetBtn.onclick = (e) => {
+                e.preventDefault();
+                resendResetOtp();
             };
         }
 
