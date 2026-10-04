@@ -3376,8 +3376,21 @@
                 };
 
                 // Admitad Affiliate Link Generator for Alibaba
-                const createAlibabaAffiliateLink = (targetUrl) => {
+                const createAlibabaAffiliateLink = (input) => {
                     const admitadPrefix = 'https://rzekl.com/g/pm1aev55clbf031de0c2219aa26f6f/?ulp=';
+
+                    if (!input) {
+                        return `${admitadPrefix}${encodeURIComponent('https://www.alibaba.com')}`;
+                    }
+
+                    let targetUrl = input;
+
+                    // If input is a search query rather than a full product URL
+                    if (!input.startsWith('http://') && !input.startsWith('https://')) {
+                        const slugifiedQuery = input.trim().toLowerCase().replace(/\s+/g, '-');
+                        targetUrl = `https://www.alibaba.com/showroom/${slugifiedQuery}.html`;
+                    }
+
                     return `${admitadPrefix}${encodeURIComponent(targetUrl)}`;
                 };
 
@@ -3887,7 +3900,7 @@
                             ${alibabaSavings.hasDiscount ? `<span class="text-lg line-through opacity-50">${formatPrice(alibabaData.originalPrice)}</span>` : ''}
                             <span class="text-2xl font-black text-green-600 dark:text-green-400">${alibabaProduct ? 'See Wholesale Price' : 'Check Price on Alibaba'}</span>
                           </div>
-                          <a href="${createAlibabaAffiliateLink(alibabaData.url || `https://www.alibaba.com/trade/search?SearchText=${encodeURIComponent(query)}`)}" target="_blank" rel="noopener noreferrer" class="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl transition-all shadow-md hover:-translate-y-0.5 flex items-center gap-2 w-fit">
+                          <a href="${createAlibabaAffiliateLink(alibabaData.url || query)}" target="_blank" rel="noopener noreferrer" class="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl transition-all shadow-md hover:-translate-y-0.5 flex items-center gap-2 w-fit">
                             View on Alibaba →
                           </a>
                         </div>
@@ -3924,7 +3937,7 @@
                             <span class="text-xs bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 px-2 py-0.5 rounded-full font-medium">Verified Suppliers</span>
                             <span class="text-xs bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 px-2 py-0.5 rounded-full font-medium">Buyer Protection</span>
                           </div>
-                          <a href="${createAlibabaAffiliateLink(`https://www.alibaba.com/trade/search?SearchText=${encodeURIComponent(query)}`)}" target="_blank" rel="noopener noreferrer" class="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl transition-all shadow-md hover:-translate-y-0.5 flex items-center gap-2 w-fit">
+                          <a href="${createAlibabaAffiliateLink(query)}" target="_blank" rel="noopener noreferrer" class="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl transition-all shadow-md hover:-translate-y-0.5 flex items-center gap-2 w-fit">
                             View Deal →
                           </a>
                         </div>
