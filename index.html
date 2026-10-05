@@ -3394,11 +3394,8 @@
                 // eBay Affiliate URL Helper Function
                 const getEbayAffiliateUrl = (query) => {
                     const encodedQuery = encodeURIComponent(query || 'deals');
-                    const baseUrl = `https://www.ebay.com/sch/i.html?_nkw=${encodedQuery}`;
-                    if (EBAY_CAMPAIGN_ID && EBAY_CAMPAIGN_ID !== 'YOUR_EBAY_CAMPAIGN_ID') {
-                        return `${baseUrl}&campid=${EBAY_CAMPAIGN_ID}`;
-                    }
-                    return baseUrl;
+                    // Return clean eBay URL - Skimlinks will handle affiliate wrapping client-side
+                    return `https://www.ebay.com/sch/i.html?_nkw=${encodedQuery}`;
                 };
 
                 // Async function to fetch live Amazon deals
@@ -4006,7 +4003,6 @@
       loadWallOfShame();
     }
   </script>
-</body>
-</html>
+  <script type="text/javascript" src="https://s.skimresources.com/js/310488X1798964.skimlinks.js"></script>
 </body>
 </html>
