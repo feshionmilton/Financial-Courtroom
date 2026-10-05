@@ -3376,14 +3376,19 @@
                 };
 
                 // Admitad Affiliate Link Generator for Alibaba
-                const createAlibabaAffiliateLink = (productUrl) => {
+                const getAlibabaUrl = (item, searchQuery) => {
                     const admitadPrefix = 'https://rzekl.com/g/pm1aev55clbf031de0c2219aa26f6f/?ulp=';
-                    
-                    if (!productUrl) {
-                        return `${admitadPrefix}${encodeURIComponent('https://www.alibaba.com')}`;
+                    const productUrl = item?.alibabaUrl || item?.url;
+
+                    // Case 1: If we have an exact Alibaba product detail page URL, use Admitad tracking
+                    if (productUrl && productUrl.includes('alibaba.com/product-detail/')) {
+                        return `${admitadPrefix}${encodeURIComponent(productUrl)}`;
                     }
-                    
-                    return `${admitadPrefix}${encodeURIComponent(productUrl)}`;
+
+                    // Case 2: For general keyword searches where no product-detail URL exists,
+                    // link directly to Alibaba search (Admitad rejects non-product URLs)
+                    const query = searchQuery || item?.title || 'deals';
+                    return `https://www.alibaba.com/trade/search?SearchText=${encodeURIComponent(query)}`;
                 };
 
                 // eBay Affiliate URL Helper Function
@@ -3892,7 +3897,7 @@
                             ${alibabaSavings.hasDiscount ? `<span class="text-lg line-through opacity-50">${formatPrice(alibabaData.originalPrice)}</span>` : ''}
                             <span class="text-2xl font-black text-green-600 dark:text-green-400">${alibabaProduct ? 'See Wholesale Price' : 'Check Price on Alibaba'}</span>
                           </div>
-                          <a href="${createAlibabaAffiliateLink(alibabaData.url)}" target="_blank" rel="noopener noreferrer" class="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl transition-all shadow-md hover:-translate-y-0.5 flex items-center gap-2 w-fit">
+                          <a href="${getAlibabaUrl(alibabaProduct || alibabaData, query)}" target="_blank" rel="noopener noreferrer" class="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl transition-all shadow-md hover:-translate-y-0.5 flex items-center gap-2 w-fit">
                             View on Alibaba →
                           </a>
                         </div>
@@ -3929,7 +3934,7 @@
                             <span class="text-xs bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 px-2 py-0.5 rounded-full font-medium">Verified Suppliers</span>
                             <span class="text-xs bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 px-2 py-0.5 rounded-full font-medium">Buyer Protection</span>
                           </div>
-                          <a href="${createAlibabaAffiliateLink('https://www.alibaba.com/product-detail/General-Wholesale-Products_1600000000000.html')}" target="_blank" rel="noopener noreferrer" class="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl transition-all shadow-md hover:-translate-y-0.5 flex items-center gap-2 w-fit">
+                          <a href="${getAlibabaUrl({ title: query }, query)}" target="_blank" rel="noopener noreferrer" class="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl transition-all shadow-md hover:-translate-y-0.5 flex items-center gap-2 w-fit">
                             View Deal →
                           </a>
                         </div>
